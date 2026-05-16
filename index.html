@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0,user-scalable=no">
+
+<title>Mard221 Pixel</title>
+
+<link rel="manifest" href="manifest.json">
+
+<style>
+
+body{
+    margin:0;
+    background:#111;
+    color:white;
+    font-family:sans-serif;
+    text-align:center;
+}
+
+header{
+    padding:20px;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.controls{
+    padding:10px;
+}
+
+canvas{
+    width:95vw;
+    max-height:60vh;
+    image-rendering:pixelated;
+    border:1px solid #444;
+    margin-top:10px;
+}
+
+button,input{
+    margin:10px;
+}
+
+.rangeWrap{
+    width:80%;
+    margin:auto;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+Mard221 Pixel Converter
+</header>
+
+<div class="controls">
+
+<input type="file"
+id="upload"
+accept="image/*">
+
+<div class="rangeWrap">
+
+<p>
+像素大小:
+<span id="sizeText">96</span>
+</p>
+
+<input
+type="range"
+id="pixelSize"
+min="16"
+max="256"
+value="96"
+style="width:100%;">
+
+</div>
+
+<label>
+
+<input
+type="checkbox"
+id="dither"
+checked>
+
+Floyd 抖动
+
+</label>
+
+<br>
+
+<button id="saveBtn">
+保存到照片
+</button>
+
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+const paletteImg = new Image();
+paletteImg.src = "mard221_palette.jpg";
+
+let palette = [];
+
+paletteImg.onload = ()=>{
+    extractPalette();
+};
+
+function extractPalette(){
+
+    const c=document.createElement("canvas");
+    const ctx=c.getContext("2d");
+
+    c.width=paletteImg.width;
+    c.height=paletteImg.height;
+
+    ctx.drawImage(paletteImg,0,0);
+
+    const d=ctx.getImageData(
+        0,0,c.width,c.height
+    ).data;
+
+    const map=new Map();
+
+    for(let i=0;i<d.length;i+=4){
+
+        const r=d[i];
+        const g=d[i+1];
+        const b=d[i+2];
+
+        const key=`${r},${g},${b}`;
+
+        map.set(key,[r,g,b]);
+    }
+
+    palette=[...map.values()];
+}
+
+const upload=document.getElementById("upload");
+
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+const slider=document.getElementById("pixelSize");
+
+const sizeText=document.getElementById("sizeText");
+
+let originalImage=null;
+
+slider.oninput=()=>{
+
+    sizeText.innerText=slider.value;
+
+    if(originalImage){
+        convert();
+    }
+};
+
+document.getElementById("dither")
+.onchange=()=>{
+
+    if(originalImage){
+        convert();
+    }
+};
+
+upload.addEventListener("change",(e)=>{
+
+    const file=e.target.files[0];
+
+    const img=new Image();
+
+    img.onload=()=>{
+
+        originalImage=img;
+
+        convert();
+    };
+
+    img.src=URL.createObjectURL(file);
+});
+
+function nearestColor(r,g,b){
+
+    let bestDist=99999999;
+    let best=[0,0,0];
+
+    for(const c of palette){
+
+        const dr=r-c[0];
+        const dg=g-c[1];
+        const db=b-c[2];
+
+        const dist=
+            dr*dr+
+            dg*dg+
+            db*db;
+
+        if(dist<bestDist){
+
+            bestDist=dist;
+            best=c;
+        }
+    }
+
+    return best;
+}
+
+function convert(){
+
+    const size=parseInt(slider.value);
+
+    const ratio=
+        originalImage.width/
+        originalImage.height;
+
+    let w,h;
+
+    if(ratio>1){
+
+        w=size;
+        h=Math.round(size/ratio);
+
+    }else{
+
+        h=size;
+        w=Math.round(size*ratio);
+    }
+
+    const temp=document.createElement("canvas");
+
+    temp.width=w;
+    temp.height=h;
+
+    const tctx=temp.getContext("2d");
+
+    tctx.drawImage(
+        originalImage,
+        0,0,w,h
+    );
+
+    const imgData=
+        tctx.getImageData(0,0,w,h);
+
+    const data=imgData.data;
+
+    const useDither=
+        document.getElementById("dither")
+        .checked;
+
+    for(let y=0;y<h;y++){
+
+        for(let x=0;x<w;x++){
+
+            const i=(y*w+x)*4;
+
+            const oldR=data[i];
+            const oldG=data[i+1];
+            const oldB=data[i+2];
+
+            const nc=
+                nearestColor(
+                    oldR,
+                    oldG,
+                    oldB
+                );
+
+            data[i]=nc[0];
+            data[i+1]=nc[1];
+            data[i+2]=nc[2];
+
+            if(useDither){
+
+                const errR=oldR-nc[0];
+                const errG=oldG-nc[1];
+                const errB=oldB-nc[2];
+
+                spread(x+1,y,7/16);
+                spread(x-1,y+1,3/16);
+                spread(x,y+1,5/16);
+                spread(x+1,y+1,1/16);
+
+                function spread(nx,ny,f){
+
+                    if(
+                        nx<0||nx>=w||
+                        ny<0||ny>=h
+                    ) return;
+
+                    const ni=
+                        (ny*w+nx)*4;
+
+                    data[ni]+=errR*f;
+                    data[ni+1]+=errG*f;
+                    data[ni+2]+=errB*f;
+                }
+            }
+        }
+    }
+
+    tctx.putImageData(imgData,0,0);
+
+    canvas.width=w*8;
+    canvas.height=h*8;
+
+    ctx.imageSmoothingEnabled=false;
+
+    ctx.drawImage(
+        temp,
+        0,0,
+        canvas.width,
+        canvas.height
+    );
+}
+
+document.getElementById("saveBtn")
+.onclick=async()=>{
+
+    canvas.toBlob(async(blob)=>{
+
+        const file = new File(
+            [blob],
+            "pixel_art.png",
+            {type:"image/png"}
+        );
+
+        if(navigator.canShare){
+
+            await navigator.share({
+
+                files:[file],
+                title:"pixel art"
+
+            });
+
+        }else{
+
+            const url=
+                URL.createObjectURL(blob);
+
+            window.open(url,"_blank");
+        }
+
+    });
+};
+
+</script>
+
+</body>
+</html>
