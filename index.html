@@ -483,16 +483,63 @@ document
                 .checked
             ){
 
-                ctx.fillStyle =
-                "#000";
+                const textX =
+x*cell+cell/2;
 
-                ctx.fillText(
+const textY =
+y*cell+cell/2;
 
-                    best.code,
+/* 自动判断文字颜色 */
 
-                    x*cell+cell/2,
+const rgb =
+hexToRgb(best.hex);
 
-                    y*cell+cell/2
+const brightness =
+
+(
+    rgb[0]*0.299 +
+    rgb[1]*0.587 +
+    rgb[2]*0.114
+);
+
+/* 深色背景用白字 */
+
+const textColor =
+
+brightness < 140
+? "#FFFFFF"
+: "#000000";
+
+/* 描边高亮 */
+
+ctx.lineWidth = 3;
+
+ctx.strokeStyle =
+
+brightness < 140
+? "#000000"
+: "#FFFFFF";
+
+ctx.strokeText(
+
+    best.code,
+
+    textX,
+    textY
+);
+
+/* 正文 */
+
+ctx.fillStyle =
+textColor;
+
+ctx.fillText(
+
+    best.code,
+
+    textX,
+    textY
+);
                 );
             }
         }
