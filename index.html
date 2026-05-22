@@ -250,17 +250,6 @@ canvas{
     background:white;
 }
 
-.tip{
-
-    text-align:center;
-
-    font-size:14px;
-
-    color:#AAA;
-
-    padding:10px;
-}
-
 </style>
 
 </head>
@@ -431,12 +420,6 @@ id="previewModal"
 保存到相册
 
 </button>
-
-</div>
-
-<div class="tip">
-
-长按图片即可保存到照片
 
 </div>
 
@@ -797,8 +780,6 @@ rgb2[1]*0.587 +
 rgb2[2]*0.114
 );
 
-/* pixel */
-
 ctx.fillStyle =
 best.hex;
 
@@ -810,8 +791,6 @@ y*cell,
 cell,
 cell
 );
-
-/* grid */
 
 if(
 
@@ -844,8 +823,6 @@ cell,
 cell
 );
 }
-
-/* code */
 
 if(
 
@@ -964,8 +941,6 @@ exportCanvas.getContext(
 exctx.imageSmoothingEnabled =
 false;
 
-/* bg */
-
 exctx.fillStyle =
 "#FFFFFF";
 
@@ -977,8 +952,6 @@ exctx.fillRect(
 exportCanvas.width,
 exportCanvas.height
 );
-
-/* image */
 
 exctx.drawImage(
 
@@ -997,8 +970,6 @@ canvas.width*scale,
 canvas.height*scale
 );
 
-/* info bg */
-
 exctx.fillStyle =
 "#111";
 
@@ -1012,8 +983,6 @@ exportCanvas.width,
 
 infoHeight
 );
-
-/* text */
 
 exctx.fillStyle =
 "#FFF";
@@ -1119,8 +1088,6 @@ padding,
 y
 );
 
-/* modal */
-
 const url =
 exportCanvas.toDataURL(
 "image/png"
@@ -1152,12 +1119,60 @@ document
 .getElementById(
 "savePhoto"
 )
-.onclick=()=>{
+.onclick=async()=>{
 
-alert(
+    try{
 
-"请长按图片 → 存储到照片"
-);
+        const response =
+        await fetch(
+            previewImage.src
+        );
+
+        const blob =
+        await response.blob();
+
+        const file =
+        new File(
+
+            [blob],
+
+            "mard221_pixel.png",
+
+            {
+                type:"image/png"
+            }
+        );
+
+        if(
+            navigator.canShare &&
+            navigator.canShare({
+                files:[file]
+            })
+        ){
+
+            await navigator.share({
+
+                files:[file],
+
+                title:
+                "MARD221 Pixel"
+            });
+
+        }else{
+
+            alert(
+                "当前浏览器不支持保存到相册"
+            );
+        }
+
+    }catch(e){
+
+        console.log(e);
+
+        alert(
+            "保存失败"
+        );
+    }
 };
 
 </script>
