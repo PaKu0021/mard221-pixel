@@ -867,32 +867,58 @@ document
         y
     );
 
-   /* 导出 */
+ /* 导出 */
 
-exportCanvas.toBlob(blob=>{
+exportCanvas.toBlob(async blob=>{
 
-    const link =
-    document.createElement(
-        "a"
+    const file = new File(
+
+        [blob],
+
+        "mard221_pixel.png",
+
+        {
+            type:"image/png"
+        }
     );
 
-    link.href =
-    URL.createObjectURL(
-        blob
-    );
+    /* iPad / iPhone */
 
-    link.download =
-    "mard221_pixel.png";
+    if(navigator.share){
 
-    document.body.appendChild(
-        link
-    );
+        try{
 
-    link.click();
+            await navigator.share({
 
-    document.body.removeChild(
-        link
-    );
+                files:[file],
+
+                title:"MARD221 Pixel"
+            });
+
+        }catch(e){
+
+            console.log(e);
+        }
+
+    }else{
+
+        /* fallback */
+
+        const link =
+        document.createElement(
+            "a"
+        );
+
+        link.href =
+        URL.createObjectURL(
+            blob
+        );
+
+        link.download =
+        "mard221_pixel.png";
+
+        link.click();
+    }
 
 }, "image/png");
 };
