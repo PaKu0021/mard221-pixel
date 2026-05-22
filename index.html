@@ -170,7 +170,6 @@ checked
 
 <div id="info"></div>
 
-<!-- palette.js -->
 <script src="palette.js"></script>
 
 <script>
@@ -664,22 +663,25 @@ document
 )
 .onclick=()=>{
 
+    const scale = 4;
+
+    const padding = 40;
+
+    const infoHeight = 220;
+
     const exportCanvas =
     document.createElement(
         "canvas"
     );
 
-    const scale = 4;
-
     exportCanvas.width =
 
-    canvas.width *
-    scale;
+    canvas.width * scale;
 
     exportCanvas.height =
 
-    canvas.height *
-    scale;
+    canvas.height * scale
+    + infoHeight;
 
     const exctx =
     exportCanvas.getContext(
@@ -689,9 +691,12 @@ document
     exctx.imageSmoothingEnabled =
     false;
 
-    exctx.drawImage(
+    /* 白底 */
 
-        canvas,
+    exctx.fillStyle =
+    "#FFFFFF";
+
+    exctx.fillRect(
 
         0,
         0,
@@ -699,6 +704,170 @@ document
         exportCanvas.width,
         exportCanvas.height
     );
+
+    /* 拼豆图 */
+
+    exctx.drawImage(
+
+        canvas,
+
+        0,
+        0,
+
+        canvas.width,
+        canvas.height,
+
+        0,
+        0,
+
+        canvas.width * scale,
+        canvas.height * scale
+    );
+
+    /* 信息栏 */
+
+    exctx.fillStyle =
+    "#111111";
+
+    exctx.fillRect(
+
+        0,
+
+        canvas.height * scale,
+
+        exportCanvas.width,
+
+        infoHeight
+    );
+
+    /* 文字 */
+
+    exctx.fillStyle =
+    "#FFFFFF";
+
+    exctx.font =
+    "bold 32px sans-serif";
+
+    exctx.textAlign =
+    "left";
+
+    exctx.textBaseline =
+    "top";
+
+    const grid =
+    parseInt(
+        pixelSlider.value
+    );
+
+    const ratio =
+    img.height /
+    img.width;
+
+    const w = grid;
+
+    const h =
+    Math.round(
+        grid * ratio
+    );
+
+    const used =
+    [...info.innerText.matchAll(
+        /[A-Z]\d+/g
+    )]
+    .map(v=>v[0]);
+
+    let y =
+    canvas.height * scale
+    + padding;
+
+    exctx.fillText(
+
+        `尺寸: ${w} x ${h}`,
+
+        padding,
+        y
+    );
+
+    y += 45;
+
+    exctx.fillText(
+
+        `总像素: ${w*h}`,
+
+        padding,
+        y
+    );
+
+    y += 55;
+
+    exctx.fillText(
+
+        `使用色号:`,
+
+        padding,
+        y
+    );
+
+    y += 45;
+
+    /* 色号换行 */
+
+    exctx.font =
+    "28px sans-serif";
+
+    let line = "";
+
+    const maxWidth =
+    exportCanvas.width
+    - padding*2;
+
+    for(let i=0;i<used.length;i++){
+
+        const testLine =
+
+        line +
+        used[i] +
+        "  ";
+
+        const metrics =
+        exctx.measureText(
+            testLine
+        );
+
+        if(
+            metrics.width >
+            maxWidth
+        ){
+
+            exctx.fillText(
+
+                line,
+
+                padding,
+                y
+            );
+
+            line =
+            used[i] + "  ";
+
+            y += 36;
+
+        }else{
+
+            line =
+            testLine;
+        }
+    }
+
+    exctx.fillText(
+
+        line,
+
+        padding,
+        y
+    );
+
+    /* 导出 */
 
     const url =
     exportCanvas.toDataURL(
