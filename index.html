@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh">
-
 <head>
 
 <meta charset="UTF-8">
 
 <meta
 name="viewport"
-content="width=device-width,initial-scale=1.0">
+content="width=device-width,initial-scale=1.0"
+>
 
-<title>Mard221 拼豆图纸生成器</title>
+<title>MARD221 Pixel Generator</title>
 
 <style>
 
@@ -19,8 +19,8 @@ body{
     color:white;
     font-family:sans-serif;
     text-align:center;
-    margin:0;
     padding:20px;
+    margin:0;
 }
 
 h1{
@@ -28,48 +28,43 @@ h1{
     margin-bottom:20px;
 }
 
-canvas{
+.controls{
 
-    border:1px solid #444;
-    background:white;
-    max-width:95vw;
-    margin-top:20px;
-
-    image-rendering:pixelated;
+    margin-bottom:20px;
 }
 
-button,input{
+canvas{
 
-    margin:10px;
+    background:#222;
+    border:1px solid #555;
+
+    image-rendering:pixelated;
+
+    max-width:95vw;
+}
+
+button,
+input{
+
+    margin:8px;
 }
 
 #info{
 
     margin-top:20px;
 
-    background:#1b1b1b;
+    white-space:pre-wrap;
 
-    padding:20px;
+    text-align:left;
 
-    border-radius:12px;
-
-    max-width:900px;
+    max-width:1000px;
 
     margin-left:auto;
     margin-right:auto;
 
-    text-align:left;
-}
+    background:#1a1a1a;
 
-.colorItem{
-
-    display:inline-block;
-
-    margin:4px;
-
-    padding:6px 10px;
-
-    background:#222;
+    padding:12px;
 
     border-radius:8px;
 }
@@ -80,130 +75,251 @@ button,input{
 
 <body>
 
-<h1>
+<h1>MARD221 Pixel Generator</h1>
 
-Mard221 拼豆图纸生成器
-
-</h1>
+<div class="controls">
 
 <input
 type="file"
 id="upload"
-accept="image/*">
+accept="image/*"
+>
 
 <br>
 
-像素尺寸：
+像素宽度：
 
 <input
 type="range"
-id="size"
+id="pixelSize"
 min="16"
 max="128"
-value="48">
+value="48"
+>
 
-<span id="sizeText">
-
-48
-
-</span>
+<span id="sizeText">48</span>
 
 <br>
 
-<button id="saveBtn">
+<label>
 
-保存到iPad照片
+<input
+type="checkbox"
+id="showCode"
+checked
+>
+
+显示色号
+
+</label>
+
+<br>
+
+<button id="convertBtn">
+
+生成拼豆图
 
 </button>
 
-<br>
+<button id="saveBtn">
 
-<canvas id="canvas"></canvas>
+保存图片
 
-<div id="info">
-
-等待生成...
+</button>
 
 </div>
 
-<!-- 色盘 -->
+<canvas id="canvas"></canvas>
 
+<div id="info"></div>
+
+<!-- 你的palette.js -->
 <script src="palette.js"></script>
 
 <script>
 
+/*
+palette.js 格式：
+
+const palette = [
+
+{
+    code:"H10",
+    hex:"#EEE9EA"
+},
+
+{
+    code:"A1",
+    hex:"#F5D77A"
+}
+
+];
+
+*/
+
+
 const upload =
-    document.getElementById(
-        "upload"
-    );
+document.getElementById(
+    "upload"
+);
 
 const canvas =
-    document.getElementById(
-        "canvas"
-    );
+document.getElementById(
+    "canvas"
+);
 
 const ctx =
-    canvas.getContext("2d");
+canvas.getContext(
+    "2d"
+);
 
-const slider =
-    document.getElementById(
-        "size"
-    );
+const pixelSlider =
+document.getElementById(
+    "pixelSize"
+);
 
-slider.oninput = ()=>{
+const sizeText =
+document.getElementById(
+    "sizeText"
+);
 
-    document.getElementById(
-        "sizeText"
-    ).innerText =
-        slider.value;
+const info =
+document.getElementById(
+    "info"
+);
+
+let img = null;
+
+
+/* =========================
+   UI
+========================= */
+
+pixelSlider.oninput=()=>{
+
+    sizeText.innerText =
+    pixelSlider.value;
 };
 
-let originalImage = null;
 
-upload.addEventListener(
-    "change",
-    (e)=>{
+/* =========================
+   IMAGE LOAD
+========================= */
 
-        const file =
-            e.target.files[0];
+upload.onchange=e=>{
 
-        const img =
-            new Image();
+    const file =
+    e.target.files[0];
 
-        img.onload = ()=>{
+    if(!file) return;
 
-            originalImage = img;
+    const reader =
+    new FileReader();
 
-            generate();
+    reader.onload=()=>{
+
+        img = new Image();
+
+        img.onload=()=>{
+
+            drawOriginal();
         };
 
         img.src =
-            URL.createObjectURL(file);
-    }
-);
+        reader.result;
+    };
 
-function nearestColor(r,g,b){
+    reader.readAsDataURL(file);
+};
+
+
+function drawOriginal(){
+
+    canvas.width =
+    img.width;
+
+    canvas.height =
+    img.height;
+
+    ctx.drawImage(
+        img,
+        0,
+        0
+    );
+}
+
+
+/* =========================
+   HEX → RGB
+========================= */
+
+function hexToRgb(hex){
+
+    hex =
+    hex.replace("#","");
+
+    return [
+
+        parseInt(
+            hex.substring(0,2),
+            16
+        ),
+
+        parseInt(
+            hex.substring(2,4),
+            16
+        ),
+
+        parseInt(
+            hex.substring(4,6),
+            16
+        )
+    ];
+}
+
+
+/* =========================
+   COLOR DISTANCE
+========================= */
+
+function colorDistance(a,b){
+
+    return Math.sqrt(
+
+        (a[0]-b[0])**2+
+
+        (a[1]-b[1])**2+
+
+        (a[2]-b[2])**2
+    );
+}
+
+
+/* =========================
+   FIND NEAREST
+========================= */
+
+function nearestColor(rgb){
 
     let best = null;
 
-    let bestDist = 999999999;
+    let bestDist =
+    Infinity;
 
     for(const p of palette){
 
-        const pr = p.rgb[0];
-        const pg = p.rgb[1];
-        const pb = p.rgb[2];
-
-        const dr = r-pr;
-        const dg = g-pg;
-        const db = b-pb;
+        const prgb =
+        hexToRgb(
+            p.hex
+        );
 
         const dist =
-            dr*dr+
-            dg*dg+
-            db*db;
+        colorDistance(
+            rgb,
+            prgb
+        );
 
-        if(dist < bestDist){
+        if(dist<bestDist){
 
             bestDist = dist;
 
@@ -214,282 +330,218 @@ function nearestColor(r,g,b){
     return best;
 }
 
-function generate(){
 
-    const gridSize =
-        parseInt(slider.value);
+/* =========================
+   CONVERT
+========================= */
+
+document
+.getElementById(
+    "convertBtn"
+)
+.onclick=()=>{
+
+    if(!img) return;
+
+    const grid =
+    parseInt(
+        pixelSlider.value
+    );
 
     const ratio =
-        originalImage.width /
-        originalImage.height;
+    img.height/img.width;
 
-    let w,h;
+    const w = grid;
 
-    if(ratio > 1){
-
-        w = gridSize;
-
-        h = Math.round(
-            gridSize / ratio
-        );
-
-    }else{
-
-        h = gridSize;
-
-        w = Math.round(
-            gridSize * ratio
-        );
-    }
+    const h =
+    Math.round(
+        grid*ratio
+    );
 
     const temp =
-        document.createElement(
-            "canvas"
-        );
+    document.createElement(
+        "canvas"
+    );
 
     temp.width = w;
     temp.height = h;
 
     const tctx =
-        temp.getContext("2d");
+    temp.getContext(
+        "2d"
+    );
 
     tctx.drawImage(
-        originalImage,
+
+        img,
+
         0,
         0,
+
         w,
         h
     );
 
-    const imgData =
-        tctx.getImageData(
-            0,
-            0,
-            w,
-            h
-        );
-
     const data =
-        imgData.data;
+    tctx.getImageData(
 
-    const grid = [];
+        0,
+        0,
 
-    const usage = {};
+        w,
+        h
 
-    for(let y=0;y<h;y++){
-
-        const row=[];
-
-        for(let x=0;x<w;x++){
-
-            const i=
-                (y*w+x)*4;
-
-            const r=data[i];
-            const g=data[i+1];
-            const b=data[i+2];
-
-            const nc=
-                nearestColor(
-                    r,g,b
-                );
-
-            row.push(nc);
-
-            if(!usage[nc.code]){
-
-                usage[nc.code]=0;
-            }
-
-            usage[nc.code]++;
-        }
-
-        grid.push(row);
-    }
+    ).data;
 
     const cell = 24;
 
     canvas.width =
-        w * cell;
+    w*cell;
 
     canvas.height =
-        h * cell;
+    h*cell;
 
-    ctx.fillStyle =
-        "white";
+    ctx.clearRect(
 
-    ctx.fillRect(
         0,
         0,
+
         canvas.width,
         canvas.height
     );
 
+    ctx.font =
+    "10px sans-serif";
+
     ctx.textAlign =
-        "center";
+    "center";
 
     ctx.textBaseline =
-        "middle";
+    "middle";
 
-    ctx.font =
-        "10px sans-serif";
+    const used =
+    new Set();
+
 
     for(let y=0;y<h;y++){
 
         for(let x=0;x<w;x++){
 
-            const p =
-                grid[y][x];
+            const i =
+            (y*w+x)*4;
 
-            const px =
-                x*cell;
+            const rgb = [
 
-            const py =
-                y*cell;
+                data[i],
+                data[i+1],
+                data[i+2]
+            ];
+
+            const best =
+            nearestColor(rgb);
+
+            used.add(
+                best.code
+            );
+
+            /* draw pixel */
 
             ctx.fillStyle =
-                `rgb(
-                    ${p.rgb[0]},
-                    ${p.rgb[1]},
-                    ${p.rgb[2]}
-                )`;
+            best.hex;
 
             ctx.fillRect(
-                px,
-                py,
+
+                x*cell,
+                y*cell,
+
                 cell,
                 cell
             );
+
+            /* border */
 
             ctx.strokeStyle =
-                "#666";
+            "#000";
 
             ctx.strokeRect(
-                px,
-                py,
+
+                x*cell,
+                y*cell,
+
                 cell,
                 cell
             );
 
-            const brightness =
-                (
-                    p.rgb[0]+
-                    p.rgb[1]+
-                    p.rgb[2]
-                ) / 3;
+            /* color code */
 
-            ctx.fillStyle =
-                brightness > 140
-                ? "black"
-                : "white";
+            if(
 
-            ctx.fillText(
-                p.code,
-                px + cell/2,
-                py + cell/2
-            );
-        }
-    }
+                document
+                .getElementById(
+                    "showCode"
+                )
+                .checked
+            ){
 
-    renderInfo(
-        w,
-        h,
-        usage
-    );
-}
+                ctx.fillStyle =
+                "#000";
 
-function renderInfo(w,h,usage){
+                ctx.fillText(
 
-    const info =
-        document.getElementById(
-            "info"
-        );
+                    best.code,
 
-    let html = `
+                    x*cell+cell/2,
 
-    <h2>
-    图纸信息
-    </h2>
-
-    <p>
-
-    尺寸：
-
-    ${w} × ${h} 格
-
-    </p>
-
-    <h3>
-    使用颜色
-    </h3>
-
-    `;
-
-    const keys =
-        Object.keys(usage)
-        .sort();
-
-    for(const k of keys){
-
-        html += `
-
-        <div class="colorItem">
-
-        ${k} × ${usage[k]}
-
-        </div>
-
-        `;
-    }
-
-    info.innerHTML = html;
-}
-
-document.getElementById(
-    "saveBtn"
-).onclick = async()=>{
-
-    canvas.toBlob(
-        async(blob)=>{
-
-            const file =
-                new File(
-
-                    [blob],
-
-                    "mard221_pattern.png",
-
-                    {
-                        type:"image/png"
-                    }
+                    y*cell+cell/2
                 );
-
-            if(navigator.canShare){
-
-                await navigator.share({
-
-                    files:[file],
-
-                    title:
-                    "Mard221 Pattern"
-
-                });
-
-            }else{
-
-                const url =
-                    URL.createObjectURL(
-                        blob
-                    );
-
-                window.open(url);
             }
         }
+    }
+
+
+    /* INFO */
+
+    info.innerText =
+
+`尺寸：
+
+${w} x ${h}
+
+总像素：
+
+${w*h}
+
+使用色号：
+
+${[...used].join(", ")}`;
+};
+
+
+/* =========================
+   SAVE
+========================= */
+
+document
+.getElementById(
+    "saveBtn"
+)
+.onclick=()=>{
+
+    const link =
+    document.createElement(
+        "a"
     );
+
+    link.download =
+    "mard221_pixel.png";
+
+    link.href =
+    canvas.toDataURL();
+
+    link.click();
 };
 
 </script>
 
 </body>
-
 </html>
