@@ -78,6 +78,26 @@ label{
     user-select:none;
 }
 
+button{
+
+    padding:10px 20px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#333;
+
+    color:white;
+
+    font-size:16px;
+}
+
+button:active{
+
+    transform:scale(0.98);
+}
+
 </style>
 
 </head>
@@ -219,6 +239,12 @@ document.getElementById(
 );
 
 let img = null;
+
+let lastUsedColors = [];
+
+let lastW = 0;
+
+let lastH = 0;
 
 
 /* =========================
@@ -406,6 +432,9 @@ document
     Math.round(
         grid * ratio
     );
+
+    lastW = w;
+    lastH = h;
 
     const temp =
     document.createElement(
@@ -632,8 +661,8 @@ document
         }
     }
 
-
-    /* INFO */
+    lastUsedColors =
+    [...used].sort();
 
     info.innerText =
 
@@ -647,9 +676,7 @@ ${w*h}
 
 使用色号：
 
-${[...used]
-.sort()
-.join(", ")}`;
+${lastUsedColors.join(", ")}`;
 };
 
 
@@ -663,11 +690,20 @@ document
 )
 .onclick=()=>{
 
+    if(!img){
+
+        alert(
+            "请先生成拼豆图"
+        );
+
+        return;
+    }
+
     const scale = 4;
 
     const padding = 40;
 
-    const infoHeight = 220;
+    const infoHeight = 260;
 
     const exportCanvas =
     document.createElement(
@@ -740,13 +776,8 @@ document
         infoHeight
     );
 
-    /* 文字 */
-
     exctx.fillStyle =
     "#FFFFFF";
-
-    exctx.font =
-    "bold 32px sans-serif";
 
     exctx.textAlign =
     "left";
@@ -754,27 +785,8 @@ document
     exctx.textBaseline =
     "top";
 
-    const grid =
-    parseInt(
-        pixelSlider.value
-    );
-
-    const ratio =
-    img.height /
-    img.width;
-
-    const w = grid;
-
-    const h =
-    Math.round(
-        grid * ratio
-    );
-
-    const used =
-    [...info.innerText.matchAll(
-        /[A-Z]\d+/g
-    )]
-    .map(v=>v[0]);
+    exctx.font =
+    "bold 32px sans-serif";
 
     let y =
     canvas.height * scale
@@ -782,23 +794,23 @@ document
 
     exctx.fillText(
 
-        `尺寸: ${w} x ${h}`,
+        `尺寸: ${lastW} x ${lastH}`,
 
         padding,
         y
     );
 
-    y += 45;
+    y += 50;
 
     exctx.fillText(
 
-        `总像素: ${w*h}`,
+        `总像素: ${lastW*lastH}`,
 
         padding,
         y
     );
 
-    y += 55;
+    y += 60;
 
     exctx.fillText(
 
@@ -810,8 +822,6 @@ document
 
     y += 45;
 
-    /* 色号换行 */
-
     exctx.font =
     "28px sans-serif";
 
@@ -821,12 +831,12 @@ document
     exportCanvas.width
     - padding*2;
 
-    for(let i=0;i<used.length;i++){
+    for(let i=0;i<lastUsedColors.length;i++){
 
         const testLine =
 
         line +
-        used[i] +
+        lastUsedColors[i] +
         "  ";
 
         const metrics =
@@ -848,9 +858,9 @@ document
             );
 
             line =
-            used[i] + "  ";
+            lastUsedColors[i] + "  ";
 
-            y += 36;
+            y += 38;
 
         }else{
 
@@ -867,63 +877,63 @@ document
         y
     );
 
-/* 导出 */
+    /* 打开图片页 */
 
-const url =
-exportCanvas.toDataURL(
-    "image/png"
-);
+    const url =
+    exportCanvas.toDataURL(
+        "image/png"
+    );
 
-const newTab =
-window.open();
+    const newTab =
+    window.open();
 
-newTab.document.write(`
+    newTab.document.write(`
 
-    <html>
+        <html>
 
-    <head>
+        <head>
 
-    <title>
-    MARD221 Pixel
-    </title>
+        <title>
+        MARD221 Pixel
+        </title>
 
-    <style>
+        <style>
 
-    body{
+        body{
 
-        margin:0;
+            margin:0;
 
-        background:#111;
+            background:#111;
 
-        display:flex;
+            display:flex;
 
-        justify-content:center;
+            justify-content:center;
 
-        align-items:center;
+            align-items:center;
 
-        min-height:100vh;
-    }
+            min-height:100vh;
+        }
 
-    img{
+        img{
 
-        max-width:100%;
+            max-width:100%;
 
-        height:auto;
-    }
+            height:auto;
+        }
 
-    </style>
+        </style>
 
-    </head>
+        </head>
 
-    <body>
+        <body>
 
-    <img src="${url}">
+        <img src="${url}">
 
-    </body>
+        </body>
 
-    </html>
+        </html>
 
-`);
+    `);
 };
 
 </script>
