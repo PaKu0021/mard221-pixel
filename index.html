@@ -6,96 +6,259 @@
 
 <meta
 name="viewport"
-content="width=device-width,initial-scale=1.0"
+content="width=device-width,initial-scale=1.0,viewport-fit=cover,user-scalable=no"
 >
 
 <title>MARD221 Pixel Generator</title>
 
 <style>
 
+*{
+
+    box-sizing:border-box;
+
+    -webkit-tap-highlight-color:transparent;
+}
+
 body{
 
+    margin:0;
+
     background:#111;
+
     color:white;
 
     font-family:sans-serif;
 
-    text-align:center;
-
-    padding:20px;
-    margin:0;
+    overflow-x:hidden;
 }
 
-h1{
+/* =========================
+   TOP BAR
+========================= */
 
-    margin-bottom:20px;
+.topbar{
+
+    position:sticky;
+
+    top:0;
+
+    z-index:1000;
+
+    background:#1a1a1a;
+
+    padding:
+
+    env(safe-area-inset-top)
+    12px
+    12px
+    12px;
+
+    border-bottom:
+    1px solid #333;
 }
+
+.topbar h1{
+
+    margin:0 0 12px 0;
+
+    font-size:22px;
+}
+
+/* =========================
+   CONTROLS
+========================= */
 
 .controls{
 
-    margin-bottom:20px;
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+}
+
+.control-group{
+
+    background:#222;
+
+    padding:12px;
+
+    border-radius:12px;
+}
+
+.row{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:10px;
+}
+
+input[type="range"]{
+
+    width:100%;
+}
+
+button{
+
+    width:100%;
+
+    border:none;
+
+    border-radius:12px;
+
+    padding:14px;
+
+    font-size:16px;
+
+    background:#333;
+
+    color:white;
+}
+
+button:active{
+
+    transform:scale(0.98);
+}
+
+.primary{
+
+    background:#4A8CFF;
+}
+
+.success{
+
+    background:#1E9E59;
+}
+
+/* =========================
+   CANVAS
+========================= */
+
+.main{
+
+    padding:16px;
+}
+
+.canvas-wrap{
+
+    display:flex;
+
+    justify-content:center;
 }
 
 canvas{
 
     background:#222;
 
-    border:1px solid #555;
+    border:1px solid #444;
 
     image-rendering:pixelated;
 
     max-width:95vw;
 }
 
-button,
-input{
-
-    margin:8px;
-}
+/* =========================
+   INFO
+========================= */
 
 #info{
 
     margin-top:20px;
 
+    background:#1c1c1c;
+
+    border-radius:12px;
+
+    padding:14px;
+
     white-space:pre-wrap;
 
-    text-align:left;
-
-    max-width:1000px;
-
-    margin-left:auto;
-    margin-right:auto;
-
-    background:#1a1a1a;
-
-    padding:12px;
-
-    border-radius:8px;
+    line-height:1.6;
 }
 
-label{
+/* =========================
+   PREVIEW MODAL
+========================= */
 
-    user-select:none;
+.modal{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,0.92);
+
+    display:none;
+
+    flex-direction:column;
+
+    z-index:9999;
 }
 
-button{
+.modal-top{
 
-    padding:10px 20px;
+    display:flex;
 
-    border:none;
+    gap:10px;
 
-    border-radius:8px;
+    padding:
 
-    background:#333;
+    env(safe-area-inset-top)
+    12px
+    12px
+    12px;
 
-    color:white;
+    background:#111;
 
-    font-size:16px;
+    border-bottom:
+    1px solid #333;
 }
 
-button:active{
+.modal-top button{
 
-    transform:scale(0.98);
+    flex:1;
+}
+
+.preview-wrap{
+
+    flex:1;
+
+    overflow:auto;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:flex-start;
+
+    padding:20px;
+}
+
+.preview-wrap img{
+
+    max-width:100%;
+
+    height:auto;
+
+    image-rendering:pixelated;
+
+    background:white;
+}
+
+.tip{
+
+    text-align:center;
+
+    font-size:14px;
+
+    color:#AAA;
+
+    padding:10px;
 }
 
 </style>
@@ -104,9 +267,21 @@ button:active{
 
 <body>
 
+<!-- =========================
+TOP
+========================= -->
+
+<div class="topbar">
+
 <h1>MARD221 Pixel Generator</h1>
 
 <div class="controls">
+
+<div class="control-group">
+
+<div class="row">
+
+<span>上传图片</span>
 
 <input
 type="file"
@@ -114,9 +289,23 @@ id="upload"
 accept="image/*"
 >
 
-<br>
+</div>
 
-像素宽度：
+</div>
+
+<div class="control-group">
+
+<div class="row">
+
+<span>
+像素宽度
+</span>
+
+<span id="sizeText">
+48
+</span>
+
+</div>
 
 <input
 type="range"
@@ -126,11 +315,21 @@ max="128"
 value="48"
 >
 
-<span id="sizeText">48</span>
+</div>
 
-<br>
+<div class="control-group">
 
-像素格尺寸：
+<div class="row">
+
+<span>
+像素格尺寸
+</span>
+
+<span id="cellText">
+32
+</span>
+
+</div>
 
 <input
 type="range"
@@ -140,9 +339,9 @@ max="64"
 value="32"
 >
 
-<span id="cellText">32</span>
+</div>
 
-<br>
+<div class="control-group">
 
 <label>
 
@@ -156,7 +355,7 @@ checked
 
 </label>
 
-<br>
+<br><br>
 
 <label>
 
@@ -170,15 +369,21 @@ checked
 
 </label>
 
-<br>
+</div>
 
-<button id="convertBtn">
+<button
+id="convertBtn"
+class="primary"
+>
 
 生成拼豆图
 
 </button>
 
-<button id="saveBtn">
+<button
+id="saveBtn"
+class="success"
+>
 
 保存图片
 
@@ -186,56 +391,119 @@ checked
 
 </div>
 
+</div>
+
+<!-- =========================
+MAIN
+========================= -->
+
+<div class="main">
+
+<div class="canvas-wrap">
+
 <canvas id="canvas"></canvas>
 
+</div>
+
 <div id="info"></div>
+
+</div>
+
+<!-- =========================
+MODAL
+========================= -->
+
+<div
+class="modal"
+id="previewModal"
+>
+
+<div class="modal-top">
+
+<button id="closePreview">
+
+返回编辑
+
+</button>
+
+<button id="savePhoto">
+
+保存到相册
+
+</button>
+
+</div>
+
+<div class="tip">
+
+长按图片即可保存到照片
+
+</div>
+
+<div class="preview-wrap">
+
+<img id="previewImage">
+
+</div>
+
+</div>
 
 <script src="palette.js"></script>
 
 <script>
 
 /* =========================
-   ELEMENTS
+ELEMENTS
 ========================= */
 
 const upload =
 document.getElementById(
-    "upload"
+"upload"
 );
 
 const canvas =
 document.getElementById(
-    "canvas"
+"canvas"
 );
 
 const ctx =
 canvas.getContext(
-    "2d"
+"2d"
 );
 
 const pixelSlider =
 document.getElementById(
-    "pixelSize"
+"pixelSize"
 );
 
 const sizeText =
 document.getElementById(
-    "sizeText"
+"sizeText"
 );
 
 const cellSlider =
 document.getElementById(
-    "cellSize"
+"cellSize"
 );
 
 const cellText =
 document.getElementById(
-    "cellText"
+"cellText"
 );
 
 const info =
 document.getElementById(
-    "info"
+"info"
+);
+
+const modal =
+document.getElementById(
+"previewModal"
+);
+
+const previewImage =
+document.getElementById(
+"previewImage"
 );
 
 let img = null;
@@ -248,692 +516,648 @@ let lastH = 0;
 
 
 /* =========================
-   UI
+UI
 ========================= */
 
 pixelSlider.oninput=()=>{
 
-    sizeText.innerText =
-    pixelSlider.value;
+sizeText.innerText =
+pixelSlider.value;
 };
 
 cellSlider.oninput=()=>{
 
-    cellText.innerText =
-    cellSlider.value;
+cellText.innerText =
+cellSlider.value;
 };
 
 
 /* =========================
-   IMAGE LOAD
+LOAD IMAGE
 ========================= */
 
 upload.onchange=e=>{
 
-    const file =
-    e.target.files[0];
+const file =
+e.target.files[0];
 
-    if(!file) return;
+if(!file) return;
 
-    const reader =
-    new FileReader();
+const reader =
+new FileReader();
 
-    reader.onload=()=>{
+reader.onload=()=>{
 
-        img = new Image();
+img = new Image();
 
-        img.onload=()=>{
+img.onload=()=>{
 
-            drawOriginal();
-        };
+canvas.width =
+img.width;
 
-        img.src =
-        reader.result;
-    };
+canvas.height =
+img.height;
 
-    reader.readAsDataURL(file);
+ctx.drawImage(
+img,
+0,
+0
+);
+};
+
+img.src =
+reader.result;
+};
+
+reader.readAsDataURL(file);
 };
 
 
-function drawOriginal(){
-
-    canvas.width =
-    img.width;
-
-    canvas.height =
-    img.height;
-
-    ctx.drawImage(
-
-        img,
-
-        0,
-        0
-    );
-}
-
-
 /* =========================
-   HEX → RGB
+UTIL
 ========================= */
 
 function hexToRgb(hex){
 
-    hex =
-    hex.replace("#","");
+hex =
+hex.replace("#","");
 
-    return [
+return [
 
-        parseInt(
-            hex.substring(0,2),
-            16
-        ),
+parseInt(
+hex.substring(0,2),
+16
+),
 
-        parseInt(
-            hex.substring(2,4),
-            16
-        ),
+parseInt(
+hex.substring(2,4),
+16
+),
 
-        parseInt(
-            hex.substring(4,6),
-            16
-        )
-    ];
+parseInt(
+hex.substring(4,6),
+16
+)
+];
 }
-
-
-/* =========================
-   COLOR DISTANCE
-========================= */
 
 function colorDistance(a,b){
 
-    return Math.sqrt(
+return Math.sqrt(
 
-        (a[0]-b[0])**2+
+(a[0]-b[0])**2+
 
-        (a[1]-b[1])**2+
+(a[1]-b[1])**2+
 
-        (a[2]-b[2])**2
-    );
+(a[2]-b[2])**2
+);
 }
-
-
-/* =========================
-   FIND NEAREST COLOR
-========================= */
 
 function nearestColor(rgb){
 
-    let best = null;
+let best = null;
 
-    let bestDist =
-    Infinity;
+let bestDist =
+Infinity;
 
-    for(const p of palette){
+for(const p of palette){
 
-        const prgb =
-        hexToRgb(
-            p.hex
-        );
+const prgb =
+hexToRgb(
+p.hex
+);
 
-        const dist =
-        colorDistance(
-            rgb,
-            prgb
-        );
+const dist =
+colorDistance(
+rgb,
+prgb
+);
 
-        if(dist < bestDist){
+if(dist < bestDist){
 
-            bestDist =
-            dist;
+bestDist =
+dist;
 
-            best =
-            p;
-        }
-    }
+best = p;
+}
+}
 
-    return best;
+return best;
 }
 
 
 /* =========================
-   CONVERT
+CONVERT
 ========================= */
 
 document
 .getElementById(
-    "convertBtn"
+"convertBtn"
 )
 .onclick=()=>{
 
-    if(!img){
+if(!img){
 
-        alert(
-            "请先上传图片"
-        );
+alert("请先上传图片");
 
-        return;
-    }
+return;
+}
 
-    const grid =
-    parseInt(
-        pixelSlider.value
-    );
+const grid =
+parseInt(
+pixelSlider.value
+);
 
-    const ratio =
-    img.height /
-    img.width;
+const ratio =
+img.height /
+img.width;
 
-    const w =
-    grid;
+const w =
+grid;
 
-    const h =
-    Math.round(
-        grid * ratio
-    );
+const h =
+Math.round(
+grid*ratio
+);
 
-    lastW = w;
-    lastH = h;
+lastW = w;
+lastH = h;
 
-    const temp =
-    document.createElement(
-        "canvas"
-    );
+const temp =
+document.createElement(
+"canvas"
+);
 
-    temp.width =
-    w;
+temp.width = w;
 
-    temp.height =
-    h;
+temp.height = h;
 
-    const tctx =
-    temp.getContext(
-        "2d"
-    );
+const tctx =
+temp.getContext(
+"2d"
+);
 
-    tctx.drawImage(
+tctx.drawImage(
 
-        img,
+img,
 
-        0,
-        0,
+0,
+0,
 
-        w,
-        h
-    );
+w,
+h
+);
 
-    const data =
-    tctx.getImageData(
+const data =
+tctx.getImageData(
 
-        0,
-        0,
+0,
+0,
 
-        w,
-        h
+w,
+h
 
-    ).data;
+).data;
 
-    const cell =
-    parseInt(
-        cellSlider.value
-    );
+const cell =
+parseInt(
+cellSlider.value
+);
 
-    canvas.width =
-    w * cell;
+canvas.width =
+w*cell;
 
-    canvas.height =
-    h * cell;
+canvas.height =
+h*cell;
 
-    ctx.clearRect(
+ctx.clearRect(
 
-        0,
-        0,
+0,
+0,
 
-        canvas.width,
-        canvas.height
-    );
+canvas.width,
+canvas.height
+);
 
-    ctx.imageSmoothingEnabled =
-    false;
+ctx.imageSmoothingEnabled =
+false;
 
-    ctx.textAlign =
-    "center";
+ctx.textAlign =
+"center";
 
-    ctx.textBaseline =
-    "middle";
+ctx.textBaseline =
+"middle";
 
-    ctx.font =
+ctx.font =
 
-    `bold ${
-    Math.floor(
+`bold ${
+Math.floor(
+Math.max(
+8,
+cell*0.32
+))
+}px sans-serif`;
 
-        Math.max(
-            8,
-            cell * 0.32
-        )
+const used =
+new Set();
 
-    )}px sans-serif`;
+for(let y=0;y<h;y++){
 
-    const used =
-    new Set();
+for(let x=0;x<w;x++){
 
+const i =
+(y*w+x)*4;
 
-    for(let y=0;y<h;y++){
+const pixelRgb = [
 
-        for(let x=0;x<w;x++){
+data[i],
+data[i+1],
+data[i+2]
+];
 
-            const i =
-            (y*w+x)*4;
+const best =
+nearestColor(
+pixelRgb
+);
 
-            const pixelRgb = [
+used.add(
+best.code
+);
 
-                data[i],
-                data[i+1],
-                data[i+2]
-            ];
+const rgb2 =
+hexToRgb(
+best.hex
+);
 
-            const best =
-            nearestColor(
-                pixelRgb
-            );
+const brightness =
 
-            used.add(
-                best.code
-            );
+(
+rgb2[0]*0.299 +
+rgb2[1]*0.587 +
+rgb2[2]*0.114
+);
 
-            const rgb2 =
-            hexToRgb(
-                best.hex
-            );
+/* pixel */
 
-            const brightness =
+ctx.fillStyle =
+best.hex;
 
-            (
-                rgb2[0]*0.299 +
-                rgb2[1]*0.587 +
-                rgb2[2]*0.114
-            );
+ctx.fillRect(
 
-            /* pixel */
+x*cell,
+y*cell,
 
-            ctx.fillStyle =
-            best.hex;
+cell,
+cell
+);
 
-            ctx.fillRect(
+/* grid */
 
-                x*cell,
-                y*cell,
+if(
 
-                cell,
-                cell
-            );
+document
+.getElementById(
+"showGrid"
+)
+.checked
+){
 
-            /* grid */
+ctx.lineWidth =
 
-            if(
+Math.max(
+1,
+cell*0.08
+);
 
-                document
-                .getElementById(
-                    "showGrid"
-                )
-                .checked
-            ){
+ctx.strokeStyle =
 
-                ctx.lineWidth =
+brightness < 80
+? "#FFFFFF55"
+: "#00000055";
 
-                Math.max(
-                    1,
-                    cell*0.08
-                );
+ctx.strokeRect(
 
-                ctx.strokeStyle =
+x*cell,
+y*cell,
 
-                brightness < 80
-                ? "#FFFFFF55"
-                : "#00000055";
+cell,
+cell
+);
+}
 
-                ctx.strokeRect(
+/* code */
 
-                    x*cell,
-                    y*cell,
+if(
 
-                    cell,
-                    cell
-                );
-            }
+document
+.getElementById(
+"showCode"
+)
+.checked
+){
 
-            /* code */
+const textX =
+x*cell+cell/2;
 
-            if(
+const textY =
+y*cell+cell/2;
 
-                document
-                .getElementById(
-                    "showCode"
-                )
-                .checked
-            ){
+const textColor =
 
-                const textX =
-                x*cell + cell/2;
+brightness < 140
+? "#FFFFFF"
+: "#000000";
 
-                const textY =
-                y*cell + cell/2;
+ctx.lineWidth =
 
-                const textColor =
+Math.max(
+1,
+cell*0.12
+);
 
-                brightness < 140
-                ? "#FFFFFF"
-                : "#000000";
+ctx.strokeStyle =
 
-                ctx.lineWidth =
+brightness < 140
+? "#000000"
+: "#FFFFFF";
 
-                Math.max(
-                    1,
-                    cell*0.12
-                );
+ctx.strokeText(
 
-                ctx.strokeStyle =
+best.code,
 
-                brightness < 140
-                ? "#000000"
-                : "#FFFFFF";
+textX,
+textY
+);
 
-                ctx.strokeText(
+ctx.fillStyle =
+textColor;
 
-                    best.code,
+ctx.fillText(
 
-                    textX,
-                    textY
-                );
+best.code,
 
-                ctx.fillStyle =
-                textColor;
+textX,
+textY
+);
+}
+}
+}
 
-                ctx.fillText(
+lastUsedColors =
+[...used].sort();
 
-                    best.code,
+info.innerText =
 
-                    textX,
-                    textY
-                );
-            }
-        }
-    }
-
-    lastUsedColors =
-    [...used].sort();
-
-    info.innerText =
-
-`尺寸：
-
+`尺寸:
 ${w} x ${h}
 
-总像素：
-
+总像素:
 ${w*h}
 
-使用色号：
-
+使用色号:
 ${lastUsedColors.join(", ")}`;
 };
 
 
 /* =========================
-   SAVE
+SAVE
 ========================= */
 
 document
 .getElementById(
-    "saveBtn"
+"saveBtn"
 )
 .onclick=()=>{
 
-    if(!img){
+if(!img){
 
-        alert(
-            "请先生成拼豆图"
-        );
+alert("请先生成拼豆图");
 
-        return;
-    }
+return;
+}
 
-    const scale = 4;
+const scale = 4;
 
-    const padding = 40;
+const padding = 40;
 
-    const infoHeight = 260;
+const infoHeight = 260;
 
-    const exportCanvas =
-    document.createElement(
-        "canvas"
-    );
+const exportCanvas =
+document.createElement(
+"canvas"
+);
 
-    exportCanvas.width =
+exportCanvas.width =
 
-    canvas.width * scale;
+canvas.width*scale;
 
-    exportCanvas.height =
+exportCanvas.height =
 
-    canvas.height * scale
-    + infoHeight;
+canvas.height*scale
++ infoHeight;
 
-    const exctx =
-    exportCanvas.getContext(
-        "2d"
-    );
+const exctx =
+exportCanvas.getContext(
+"2d"
+);
 
-    exctx.imageSmoothingEnabled =
-    false;
+exctx.imageSmoothingEnabled =
+false;
 
-    /* 白底 */
+/* bg */
 
-    exctx.fillStyle =
-    "#FFFFFF";
+exctx.fillStyle =
+"#FFFFFF";
 
-    exctx.fillRect(
+exctx.fillRect(
 
-        0,
-        0,
+0,
+0,
 
-        exportCanvas.width,
-        exportCanvas.height
-    );
+exportCanvas.width,
+exportCanvas.height
+);
 
-    /* 拼豆图 */
+/* image */
 
-    exctx.drawImage(
+exctx.drawImage(
 
-        canvas,
+canvas,
 
-        0,
-        0,
+0,
+0,
 
-        canvas.width,
-        canvas.height,
+canvas.width,
+canvas.height,
 
-        0,
-        0,
+0,
+0,
 
-        canvas.width * scale,
-        canvas.height * scale
-    );
+canvas.width*scale,
+canvas.height*scale
+);
 
-    /* 信息栏 */
+/* info bg */
 
-    exctx.fillStyle =
-    "#111111";
+exctx.fillStyle =
+"#111";
 
-    exctx.fillRect(
+exctx.fillRect(
 
-        0,
+0,
 
-        canvas.height * scale,
+canvas.height*scale,
 
-        exportCanvas.width,
+exportCanvas.width,
 
-        infoHeight
-    );
+infoHeight
+);
 
-    exctx.fillStyle =
-    "#FFFFFF";
+/* text */
 
-    exctx.textAlign =
-    "left";
+exctx.fillStyle =
+"#FFF";
 
-    exctx.textBaseline =
-    "top";
+exctx.textAlign =
+"left";
 
-    exctx.font =
-    "bold 32px sans-serif";
+exctx.textBaseline =
+"top";
 
-    let y =
-    canvas.height * scale
-    + padding;
+exctx.font =
+"bold 32px sans-serif";
 
-    exctx.fillText(
+let y =
 
-        `尺寸: ${lastW} x ${lastH}`,
+canvas.height*scale
++ padding;
 
-        padding,
-        y
-    );
+exctx.fillText(
 
-    y += 50;
+`尺寸: ${lastW} x ${lastH}`,
 
-    exctx.fillText(
+padding,
+y
+);
 
-        `总像素: ${lastW*lastH}`,
+y += 50;
 
-        padding,
-        y
-    );
+exctx.fillText(
 
-    y += 60;
+`总像素: ${lastW*lastH}`,
 
-    exctx.fillText(
+padding,
+y
+);
 
-        `使用色号:`,
+y += 60;
 
-        padding,
-        y
-    );
+exctx.fillText(
 
-    y += 45;
+`使用色号:`,
 
-    exctx.font =
-    "28px sans-serif";
+padding,
+y
+);
 
-    let line = "";
+y += 45;
 
-    const maxWidth =
-    exportCanvas.width
-    - padding*2;
+exctx.font =
+"28px sans-serif";
 
-    for(let i=0;i<lastUsedColors.length;i++){
+let line = "";
 
-        const testLine =
+const maxWidth =
 
-        line +
-        lastUsedColors[i] +
-        "  ";
+exportCanvas.width
+- padding*2;
 
-        const metrics =
-        exctx.measureText(
-            testLine
-        );
+for(let i=0;i<lastUsedColors.length;i++){
 
-        if(
-            metrics.width >
-            maxWidth
-        ){
+const testLine =
 
-            exctx.fillText(
+line +
+lastUsedColors[i] +
+"  ";
 
-                line,
+const metrics =
+exctx.measureText(
+testLine
+);
 
-                padding,
-                y
-            );
+if(
+metrics.width >
+maxWidth
+){
 
-            line =
-            lastUsedColors[i] + "  ";
+exctx.fillText(
 
-            y += 38;
+line,
 
-        }else{
+padding,
+y
+);
 
-            line =
-            testLine;
-        }
-    }
+line =
+lastUsedColors[i]
++ "  ";
 
-    exctx.fillText(
+y += 38;
 
-        line,
+}else{
 
-        padding,
-        y
-    );
+line =
+testLine;
+}
+}
 
-    /* 打开图片页 */
+exctx.fillText(
 
-    const url =
-    exportCanvas.toDataURL(
-        "image/png"
-    );
+line,
 
-    const newTab =
-    window.open();
+padding,
+y
+);
 
-    newTab.document.write(`
+/* modal */
 
-        <html>
+const url =
+exportCanvas.toDataURL(
+"image/png"
+);
 
-        <head>
+previewImage.src =
+url;
 
-        <title>
-        MARD221 Pixel
-        </title>
+modal.style.display =
+"flex";
+};
 
-        <style>
 
-        body{
+/* =========================
+MODAL
+========================= */
 
-            margin:0;
+document
+.getElementById(
+"closePreview"
+)
+.onclick=()=>{
 
-            background:#111;
+modal.style.display =
+"none";
+};
 
-            display:flex;
+document
+.getElementById(
+"savePhoto"
+)
+.onclick=()=>{
 
-            justify-content:center;
+alert(
 
-            align-items:center;
-
-            min-height:100vh;
-        }
-
-        img{
-
-            max-width:100%;
-
-            height:auto;
-        }
-
-        </style>
-
-        </head>
-
-        <body>
-
-        <img src="${url}">
-
-        </body>
-
-        </html>
-
-    `);
+"请长按图片 → 存储到照片"
+);
 };
 
 </script>
