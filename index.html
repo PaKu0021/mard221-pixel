@@ -23,12 +23,19 @@ body{
     padding:20px;
 }
 
+h1{
+
+    margin-bottom:20px;
+}
+
 canvas{
 
     border:1px solid #444;
-    max-width:95vw;
     background:white;
+    max-width:95vw;
     margin-top:20px;
+
+    image-rendering:pixelated;
 }
 
 button,input{
@@ -39,21 +46,31 @@ button,input{
 #info{
 
     margin-top:20px;
-    text-align:left;
+
+    background:#1b1b1b;
+
+    padding:20px;
+
+    border-radius:12px;
+
     max-width:900px;
+
     margin-left:auto;
     margin-right:auto;
-    background:#1b1b1b;
-    padding:20px;
-    border-radius:12px;
+
+    text-align:left;
 }
 
 .colorItem{
 
     display:inline-block;
+
     margin:4px;
+
     padding:6px 10px;
+
     background:#222;
+
     border-radius:8px;
 }
 
@@ -63,7 +80,11 @@ button,input{
 
 <body>
 
-<h1>Mard221 拼豆图纸生成器</h1>
+<h1>
+
+Mard221 拼豆图纸生成器
+
+</h1>
 
 <input
 type="file"
@@ -82,7 +103,9 @@ max="128"
 value="48">
 
 <span id="sizeText">
+
 48
+
 </span>
 
 <br>
@@ -103,130 +126,31 @@ value="48">
 
 </div>
 
+<!-- 色盘 -->
+
+<script src="palette.js"></script>
+
 <script>
 
-// ===== 色号 =====
-
-const labels = [];
-
-function addGroup(prefix,count){
-
-    for(let i=1;i<=count;i++){
-
-        labels.push(prefix+i);
-    }
-}
-
-addGroup("A",26);
-addGroup("B",32);
-addGroup("C",29);
-addGroup("D",25);
-addGroup("E",24);
-addGroup("F",25);
-addGroup("G",21);
-addGroup("H",23);
-addGroup("M",20);
-
-// ===== 固定色盘 =====
-
-const paletteImage = new Image();
-
-paletteImage.src =
-"mard221_palette.jpg";
-
-let palette = [];
-
-paletteImage.onload = ()=>{
-
-    buildPalette();
-};
-
-function buildPalette(){
-
-    const c =
-        document.createElement("canvas");
-
-    const ctx =
-        c.getContext("2d");
-
-    c.width =
-        paletteImage.width;
-
-    c.height =
-        paletteImage.height;
-
-    ctx.drawImage(
-        paletteImage,
-        0,
-        0
+const upload =
+    document.getElementById(
+        "upload"
     );
 
-    const data =
-        ctx.getImageData(
-            0,
-            0,
-            c.width,
-            c.height
-        ).data;
-
-    const map = new Map();
-
-    for(let i=0;i<data.length;i+=4){
-
-        const r=data[i];
-        const g=data[i+1];
-        const b=data[i+2];
-
-        // 去除黑字
-
-        if(
-            r<30 &&
-            g<30 &&
-            b<30
-        ) continue;
-
-        const key=
-            `${r},${g},${b}`;
-
-        map.set(
-            key,
-            [r,g,b]
-        );
-    }
-
-    const colors=
-        [...map.values()];
-
-    palette=[];
-
-    for(let i=0;i<labels.length;i++){
-
-        const color=
-            colors[
-                i % colors.length
-            ];
-
-        palette.push({
-
-            code:labels[i],
-            rgb:color
-        });
-    }
-}
-
-const upload =
-    document.getElementById("upload");
-
 const canvas =
-    document.getElementById("canvas");
+    document.getElementById(
+        "canvas"
+    );
 
 const ctx =
     canvas.getContext("2d");
 
 const slider =
-    document.getElementById("size");
+    document.getElementById(
+        "size"
+    );
 
-slider.oninput=()=>{
+slider.oninput = ()=>{
 
     document.getElementById(
         "sizeText"
@@ -234,56 +158,56 @@ slider.oninput=()=>{
         slider.value;
 };
 
-let originalImage=null;
+let originalImage = null;
 
 upload.addEventListener(
     "change",
     (e)=>{
 
-        const file=
+        const file =
             e.target.files[0];
 
-        const img=
+        const img =
             new Image();
 
-        img.onload=()=>{
+        img.onload = ()=>{
 
-            originalImage=img;
+            originalImage = img;
 
             generate();
         };
 
-        img.src=
+        img.src =
             URL.createObjectURL(file);
     }
 );
 
 function nearestColor(r,g,b){
 
-    let best=null;
+    let best = null;
 
-    let bestDist=999999999;
+    let bestDist = 999999999;
 
     for(const p of palette){
 
-        const pr=p.rgb[0];
-        const pg=p.rgb[1];
-        const pb=p.rgb[2];
+        const pr = p.rgb[0];
+        const pg = p.rgb[1];
+        const pb = p.rgb[2];
 
-        const dr=r-pr;
-        const dg=g-pg;
-        const db=b-pb;
+        const dr = r-pr;
+        const dg = g-pg;
+        const db = b-pb;
 
-        const dist=
+        const dist =
             dr*dr+
             dg*dg+
             db*db;
 
-        if(dist<bestDist){
+        if(dist < bestDist){
 
-            bestDist=dist;
+            bestDist = dist;
 
-            best=p;
+            best = p;
         }
     }
 
@@ -292,41 +216,41 @@ function nearestColor(r,g,b){
 
 function generate(){
 
-    const gridSize=
+    const gridSize =
         parseInt(slider.value);
 
-    const ratio=
-        originalImage.width/
+    const ratio =
+        originalImage.width /
         originalImage.height;
 
     let w,h;
 
-    if(ratio>1){
+    if(ratio > 1){
 
-        w=gridSize;
+        w = gridSize;
 
-        h=Math.round(
-            gridSize/ratio
+        h = Math.round(
+            gridSize / ratio
         );
 
     }else{
 
-        h=gridSize;
+        h = gridSize;
 
-        w=Math.round(
-            gridSize*ratio
+        w = Math.round(
+            gridSize * ratio
         );
     }
 
-    const temp=
+    const temp =
         document.createElement(
             "canvas"
         );
 
-    temp.width=w;
-    temp.height=h;
+    temp.width = w;
+    temp.height = h;
 
-    const tctx=
+    const tctx =
         temp.getContext("2d");
 
     tctx.drawImage(
@@ -337,7 +261,7 @@ function generate(){
         h
     );
 
-    const imgData=
+    const imgData =
         tctx.getImageData(
             0,
             0,
@@ -345,12 +269,12 @@ function generate(){
             h
         );
 
-    const data=
+    const data =
         imgData.data;
 
-    const grid=[];
+    const grid = [];
 
-    const usage={};
+    const usage = {};
 
     for(let y=0;y<h;y++){
 
@@ -383,15 +307,16 @@ function generate(){
         grid.push(row);
     }
 
-    const cell=24;
+    const cell = 24;
 
-    canvas.width=
-        w*cell;
+    canvas.width =
+        w * cell;
 
-    canvas.height=
-        h*cell;
+    canvas.height =
+        h * cell;
 
-    ctx.fillStyle="white";
+    ctx.fillStyle =
+        "white";
 
     ctx.fillRect(
         0,
@@ -400,26 +325,29 @@ function generate(){
         canvas.height
     );
 
-    ctx.textAlign="center";
+    ctx.textAlign =
+        "center";
 
-    ctx.textBaseline="middle";
+    ctx.textBaseline =
+        "middle";
 
-    ctx.font="10px sans-serif";
+    ctx.font =
+        "10px sans-serif";
 
     for(let y=0;y<h;y++){
 
         for(let x=0;x<w;x++){
 
-            const p=
+            const p =
                 grid[y][x];
 
-            const px=
+            const px =
                 x*cell;
 
-            const py=
+            const py =
                 y*cell;
 
-            ctx.fillStyle=
+            ctx.fillStyle =
                 `rgb(
                     ${p.rgb[0]},
                     ${p.rgb[1]},
@@ -433,7 +361,7 @@ function generate(){
                 cell
             );
 
-            ctx.strokeStyle=
+            ctx.strokeStyle =
                 "#666";
 
             ctx.strokeRect(
@@ -443,22 +371,22 @@ function generate(){
                 cell
             );
 
-            const brightness=
+            const brightness =
                 (
                     p.rgb[0]+
                     p.rgb[1]+
                     p.rgb[2]
-                )/3;
+                ) / 3;
 
-            ctx.fillStyle=
-                brightness>140
+            ctx.fillStyle =
+                brightness > 140
                 ? "black"
                 : "white";
 
             ctx.fillText(
                 p.code,
-                px+cell/2,
-                py+cell/2
+                px + cell/2,
+                py + cell/2
             );
         }
     }
@@ -472,14 +400,16 @@ function generate(){
 
 function renderInfo(w,h,usage){
 
-    const info=
+    const info =
         document.getElementById(
             "info"
         );
 
-    let html=`
+    let html = `
 
-    <h2>图纸信息</h2>
+    <h2>
+    图纸信息
+    </h2>
 
     <p>
 
@@ -489,17 +419,19 @@ function renderInfo(w,h,usage){
 
     </p>
 
-    <h3>使用颜色</h3>
+    <h3>
+    使用颜色
+    </h3>
 
     `;
 
-    const keys=
+    const keys =
         Object.keys(usage)
         .sort();
 
     for(const k of keys){
 
-        html+=`
+        html += `
 
         <div class="colorItem">
 
@@ -510,17 +442,17 @@ function renderInfo(w,h,usage){
         `;
     }
 
-    info.innerHTML=html;
+    info.innerHTML = html;
 }
 
 document.getElementById(
     "saveBtn"
-).onclick=async()=>{
+).onclick = async()=>{
 
     canvas.toBlob(
         async(blob)=>{
 
-            const file=
+            const file =
                 new File(
 
                     [blob],
@@ -545,7 +477,7 @@ document.getElementById(
 
             }else{
 
-                const url=
+                const url =
                     URL.createObjectURL(
                         blob
                     );
