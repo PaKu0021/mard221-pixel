@@ -17,8 +17,11 @@ body{
 
     background:#111;
     color:white;
+
     font-family:sans-serif;
+
     text-align:center;
+
     padding:20px;
     margin:0;
 }
@@ -36,6 +39,7 @@ h1{
 canvas{
 
     background:#222;
+
     border:1px solid #555;
 
     image-rendering:pixelated;
@@ -67,6 +71,11 @@ input{
     padding:12px;
 
     border-radius:8px;
+}
+
+label{
+
+    user-select:none;
 }
 
 </style>
@@ -101,6 +110,20 @@ value="48"
 
 <br>
 
+像素格尺寸：
+
+<input
+type="range"
+id="cellSize"
+min="16"
+max="64"
+value="32"
+>
+
+<span id="cellText">32</span>
+
+<br>
+
 <label>
 
 <input
@@ -110,6 +133,20 @@ checked
 >
 
 显示色号
+
+</label>
+
+<br>
+
+<label>
+
+<input
+type="checkbox"
+id="showGrid"
+checked
+>
+
+显示网格
 
 </label>
 
@@ -133,30 +170,14 @@ checked
 
 <div id="info"></div>
 
-<!-- 你的palette.js -->
+<!-- palette.js -->
 <script src="palette.js"></script>
 
 <script>
 
-/*
-palette.js 格式：
-
-const palette = [
-
-{
-    code:"H10",
-    hex:"#EEE9EA"
-},
-
-{
-    code:"A1",
-    hex:"#F5D77A"
-}
-
-];
-
-*/
-
+/* =========================
+   ELEMENTS
+========================= */
 
 const upload =
 document.getElementById(
@@ -183,6 +204,16 @@ document.getElementById(
     "sizeText"
 );
 
+const cellSlider =
+document.getElementById(
+    "cellSize"
+);
+
+const cellText =
+document.getElementById(
+    "cellText"
+);
+
 const info =
 document.getElementById(
     "info"
@@ -199,6 +230,12 @@ pixelSlider.oninput=()=>{
 
     sizeText.innerText =
     pixelSlider.value;
+};
+
+cellSlider.oninput=()=>{
+
+    cellText.innerText =
+    cellSlider.value;
 };
 
 
@@ -242,7 +279,9 @@ function drawOriginal(){
     img.height;
 
     ctx.drawImage(
+
         img,
+
         0,
         0
     );
@@ -296,7 +335,7 @@ function colorDistance(a,b){
 
 
 /* =========================
-   FIND NEAREST
+   FIND NEAREST COLOR
 ========================= */
 
 function nearestColor(rgb){
@@ -319,11 +358,13 @@ function nearestColor(rgb){
             prgb
         );
 
-        if(dist<bestDist){
+        if(dist < bestDist){
 
-            bestDist = dist;
+            bestDist =
+            dist;
 
-            best = p;
+            best =
+            p;
         }
     }
 
@@ -341,7 +382,14 @@ document
 )
 .onclick=()=>{
 
-    if(!img) return;
+    if(!img){
+
+        alert(
+            "请先上传图片"
+        );
+
+        return;
+    }
 
     const grid =
     parseInt(
@@ -349,13 +397,15 @@ document
     );
 
     const ratio =
-    img.height/img.width;
+    img.height /
+    img.width;
 
-    const w = grid;
+    const w =
+    grid;
 
     const h =
     Math.round(
-        grid*ratio
+        grid * ratio
     );
 
     const temp =
@@ -363,8 +413,11 @@ document
         "canvas"
     );
 
-    temp.width = w;
-    temp.height = h;
+    temp.width =
+    w;
+
+    temp.height =
+    h;
 
     const tctx =
     temp.getContext(
@@ -393,13 +446,16 @@ document
 
     ).data;
 
-    const cell = 24;
+    const cell =
+    parseInt(
+        cellSlider.value
+    );
 
     canvas.width =
-    w*cell;
+    w * cell;
 
     canvas.height =
-    h*cell;
+    h * cell;
 
     ctx.clearRect(
 
@@ -410,14 +466,26 @@ document
         canvas.height
     );
 
-    ctx.font =
-"bold 10px sans-serif";
+    ctx.imageSmoothingEnabled =
+    false;
 
     ctx.textAlign =
     "center";
 
     ctx.textBaseline =
     "middle";
+
+    ctx.font =
+
+    `bold ${
+    Math.floor(
+
+        Math.max(
+            8,
+            cell * 0.32
+        )
+
+    )}px sans-serif`;
 
     const used =
     new Set();
@@ -430,7 +498,7 @@ document
             const i =
             (y*w+x)*4;
 
-            const rgb = [
+            const pixelRgb = [
 
                 data[i],
                 data[i+1],
@@ -438,13 +506,28 @@ document
             ];
 
             const best =
-            nearestColor(rgb);
+            nearestColor(
+                pixelRgb
+            );
 
             used.add(
                 best.code
             );
 
-            /* draw pixel */
+            const rgb2 =
+            hexToRgb(
+                best.hex
+            );
+
+            const brightness =
+
+            (
+                rgb2[0]*0.299 +
+                rgb2[1]*0.587 +
+                rgb2[2]*0.114
+            );
+
+            /* pixel */
 
             ctx.fillStyle =
             best.hex;
@@ -458,21 +541,41 @@ document
                 cell
             );
 
-            /* border */
+            /* grid */
 
-            ctx.strokeStyle =
-            "#000";
+            if(
 
-            ctx.strokeRect(
+                document
+                .getElementById(
+                    "showGrid"
+                )
+                .checked
+            ){
 
-                x*cell,
-                y*cell,
+                ctx.lineWidth =
 
-                cell,
-                cell
-            );
+                Math.max(
+                    1,
+                    cell*0.08
+                );
 
-            /* color code */
+                ctx.strokeStyle =
+
+                brightness < 80
+                ? "#FFFFFF55"
+                : "#00000055";
+
+                ctx.strokeRect(
+
+                    x*cell,
+                    y*cell,
+
+                    cell,
+                    cell
+                );
+            }
+
+            /* code */
 
             if(
 
@@ -484,62 +587,48 @@ document
             ){
 
                 const textX =
-x*cell+cell/2;
+                x*cell + cell/2;
 
-const textY =
-y*cell+cell/2;
+                const textY =
+                y*cell + cell/2;
 
-/* 自动判断文字颜色 */
+                const textColor =
 
-const rgb =
-hexToRgb(best.hex);
+                brightness < 140
+                ? "#FFFFFF"
+                : "#000000";
 
-const brightness =
+                ctx.lineWidth =
 
-(
-    rgb[0]*0.299 +
-    rgb[1]*0.587 +
-    rgb[2]*0.114
-);
+                Math.max(
+                    1,
+                    cell*0.12
+                );
 
-/* 深色背景用白字 */
+                ctx.strokeStyle =
 
-const textColor =
+                brightness < 140
+                ? "#000000"
+                : "#FFFFFF";
 
-brightness < 140
-? "#FFFFFF"
-: "#000000";
+                ctx.strokeText(
 
-/* 描边高亮 */
+                    best.code,
 
-ctx.lineWidth = 3;
+                    textX,
+                    textY
+                );
 
-ctx.strokeStyle =
+                ctx.fillStyle =
+                textColor;
 
-brightness < 140
-? "#000000"
-: "#FFFFFF";
+                ctx.fillText(
 
-ctx.strokeText(
+                    best.code,
 
-    best.code,
-
-    textX,
-    textY
-);
-
-/* 正文 */
-
-ctx.fillStyle =
-textColor;
-
-ctx.fillText(
-
-    best.code,
-
-    textX,
-    textY
-);
+                    textX,
+                    textY
+                );
             }
         }
     }
@@ -559,7 +648,9 @@ ${w*h}
 
 使用色号：
 
-${[...used].join(", ")}`;
+${[...used]
+.sort()
+.join(", ")}`;
 };
 
 
@@ -573,18 +664,51 @@ document
 )
 .onclick=()=>{
 
-    const link =
+    const exportCanvas =
     document.createElement(
-        "a"
+        "canvas"
     );
 
-    link.download =
-    "mard221_pixel.png";
+    const scale = 4;
 
-    link.href =
-    canvas.toDataURL();
+    exportCanvas.width =
 
-    link.click();
+    canvas.width *
+    scale;
+
+    exportCanvas.height =
+
+    canvas.height *
+    scale;
+
+    const exctx =
+    exportCanvas.getContext(
+        "2d"
+    );
+
+    exctx.imageSmoothingEnabled =
+    false;
+
+    exctx.drawImage(
+
+        canvas,
+
+        0,
+        0,
+
+        exportCanvas.width,
+        exportCanvas.height
+    );
+
+    const url =
+    exportCanvas.toDataURL(
+        "image/png"
+    );
+
+    window.open(
+        url,
+        "_blank"
+    );
 };
 
 </script>
