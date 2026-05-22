@@ -867,17 +867,34 @@ document
         y
     );
 
-    /* 导出 */
+   /* 导出 */
 
-    const url =
-    exportCanvas.toDataURL(
-        "image/png"
+exportCanvas.toBlob(blob=>{
+
+    const link =
+    document.createElement(
+        "a"
     );
 
-    window.open(
-        url,
-        "_blank"
+    link.href =
+    URL.createObjectURL(
+        blob
     );
+
+    link.download =
+    "mard221_pixel.png";
+
+    document.body.appendChild(
+        link
+    );
+
+    link.click();
+
+    document.body.removeChild(
+        link
+    );
+
+}, "image/png");
 };
 
 </script>
