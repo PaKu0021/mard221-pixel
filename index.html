@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-
 <meta charset="UTF-8">
-
 <meta
 name="viewport"
-content="width=device-width,initial-scale=1.0,viewport-fit=cover,user-scalable=no"
+content="width=device-width,initial-scale=1.0,viewport-fit=cover"
 >
 
 <title>MARD221 Pixel Generator</title>
@@ -14,88 +12,49 @@ content="width=device-width,initial-scale=1.0,viewport-fit=cover,user-scalable=n
 <style>
 
 *{
-
     box-sizing:border-box;
-
     -webkit-tap-highlight-color:transparent;
 }
 
 body{
 
     margin:0;
-
     background:#111;
-
     color:white;
+    font-family:-apple-system,BlinkMacSystemFont,sans-serif;
 
-    font-family:sans-serif;
+    padding:
+    env(safe-area-inset-top)
+    14px
+    env(safe-area-inset-bottom);
 
     overflow-x:hidden;
 }
 
-/* =========================
-   TOP BAR
-========================= */
+h1{
 
-.topbar{
-
-    position:sticky;
-
-    top:0;
-
-    z-index:1000;
-
-    background:#1a1a1a;
-
-    padding:
-
-    env(safe-area-inset-top)
-    12px
-    12px
-    12px;
-
-    border-bottom:
-    1px solid #333;
+    margin:0 0 16px;
+    font-size:32px;
+    font-weight:700;
 }
 
-.topbar h1{
+.panel{
 
-    margin:0 0 12px 0;
-
-    font-size:22px;
-}
-
-/* =========================
-   CONTROLS
-========================= */
-
-.controls{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:10px;
-}
-
-.control-group{
-
-    background:#222;
-
-    padding:12px;
-
-    border-radius:12px;
+    background:#1b1b1d;
+    border-radius:18px;
+    padding:16px;
+    margin-bottom:14px;
 }
 
 .row{
 
-    display:flex;
+    margin-bottom:18px;
+}
 
-    align-items:center;
+.label{
 
-    justify-content:space-between;
-
-    gap:10px;
+    margin-bottom:8px;
+    font-size:18px;
 }
 
 input[type="range"]{
@@ -106,171 +65,136 @@ input[type="range"]{
 button{
 
     width:100%;
-
     border:none;
-
-    border-radius:12px;
-
-    padding:14px;
-
-    font-size:16px;
-
-    background:#333;
-
+    border-radius:16px;
+    padding:18px;
+    font-size:20px;
+    font-weight:700;
     color:white;
+    margin-top:10px;
 }
 
-button:active{
+#convertBtn{
 
-    transform:scale(0.98);
+    background:#4d8dff;
 }
 
-.primary{
+#saveBtn{
 
-    background:#4A8CFF;
+    background:#1fb45b;
 }
 
-.success{
+#backBtn{
 
-    background:#1E9E59;
-}
-
-/* =========================
-   CANVAS
-========================= */
-
-.main{
-
-    padding:16px;
-}
-
-.canvas-wrap{
-
-    display:flex;
-
-    justify-content:center;
+    background:#444;
+    display:none;
 }
 
 canvas{
 
-    background:#222;
+    display:block;
 
-    border:1px solid #444;
+    margin:20px auto;
 
     image-rendering:pixelated;
 
-    max-width:95vw;
+    width:95vw;
+    height:auto;
+
+    background:#222;
+
+    border-radius:12px;
 }
 
-/* =========================
-   INFO
-========================= */
+.check{
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    margin-top:12px;
+
+    font-size:18px;
+}
 
 #info{
 
     margin-top:20px;
 
-    background:#1c1c1c;
+    background:#1b1b1d;
 
-    border-radius:12px;
+    border-radius:18px;
 
-    padding:14px;
+    padding:18px;
+
+    line-height:1.8;
+
+    font-size:16px;
 
     white-space:pre-wrap;
-
-    line-height:1.6;
 }
 
-/* =========================
-   PREVIEW MODAL
-========================= */
-
-.modal{
+#saveOverlay{
 
     position:fixed;
-
     inset:0;
 
-    background:rgba(0,0,0,0.92);
+    background:rgba(0,0,0,.88);
 
     display:none;
 
-    flex-direction:column;
-
-    z-index:9999;
-}
-
-.modal-top{
-
-    display:flex;
-
-    gap:10px;
-
-    padding:
-
-    env(safe-area-inset-top)
-    12px
-    12px
-    12px;
-
-    background:#111;
-
-    border-bottom:
-    1px solid #333;
-}
-
-.modal-top button{
-
-    flex:1;
-}
-
-.preview-wrap{
-
-    flex:1;
+    z-index:999;
 
     overflow:auto;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:flex-start;
 
     padding:20px;
 }
 
-.preview-wrap img{
+#saveOverlay img{
 
-    max-width:100%;
-
+    width:100%;
     height:auto;
 
-    image-rendering:pixelated;
+    border-radius:12px;
+}
 
-    background:white;
+.topButtons{
+
+    display:flex;
+    gap:12px;
+
+    margin-bottom:20px;
+}
+
+.topButtons button{
+
+    margin:0;
+}
+
+.tip{
+
+    text-align:center;
+    opacity:.7;
+
+    margin-top:12px;
 }
 
 </style>
-
 </head>
 
 <body>
 
-<!-- =========================
-TOP
-========================= -->
-
-<div class="topbar">
-
 <h1>MARD221 Pixel Generator</h1>
 
-<div class="controls">
-
-<div class="control-group">
+<div class="panel">
 
 <div class="row">
 
-<span>上传图片</span>
+<div class="label">
+
+上传图片
+
+</div>
 
 <input
 type="file"
@@ -280,59 +204,45 @@ accept="image/*"
 
 </div>
 
-</div>
-
-<div class="control-group">
-
 <div class="row">
 
-<span>
-像素宽度
-</span>
+<div class="label">
 
-<span id="sizeText">
-48
-</span>
+像素宽度：
+<span id="widthText">64</span>
 
 </div>
 
 <input
 type="range"
-id="pixelSize"
+id="pixelWidth"
 min="16"
 max="128"
-value="48"
+value="64"
 >
 
 </div>
 
-<div class="control-group">
-
 <div class="row">
 
-<span>
-像素格尺寸
-</span>
+<div class="label">
 
-<span id="cellText">
-32
-</span>
+像素格尺寸：
+<span id="cellText">24</span>
 
 </div>
 
 <input
 type="range"
 id="cellSize"
-min="16"
-max="64"
-value="32"
+min="12"
+max="40"
+value="24"
 >
 
 </div>
 
-<div class="control-group">
-
-<label>
+<label class="check">
 
 <input
 type="checkbox"
@@ -344,9 +254,7 @@ checked
 
 </label>
 
-<br><br>
-
-<label>
+<label class="check">
 
 <input
 type="checkbox"
@@ -358,64 +266,13 @@ checked
 
 </label>
 
-</div>
-
-<button
-id="convertBtn"
-class="primary"
->
+<button id="convertBtn">
 
 生成拼豆图
 
 </button>
 
-<button
-id="saveBtn"
-class="success"
->
-
-保存图片
-
-</button>
-
-</div>
-
-</div>
-
-<!-- =========================
-MAIN
-========================= -->
-
-<div class="main">
-
-<div class="canvas-wrap">
-
-<canvas id="canvas"></canvas>
-
-</div>
-
-<div id="info"></div>
-
-</div>
-
-<!-- =========================
-MODAL
-========================= -->
-
-<div
-class="modal"
-id="previewModal"
->
-
-<div class="modal-top">
-
-<button id="closePreview">
-
-返回编辑
-
-</button>
-
-<button id="savePhoto">
+<button id="saveBtn">
 
 保存到相册
 
@@ -423,9 +280,35 @@ id="previewModal"
 
 </div>
 
-<div class="preview-wrap">
+<canvas id="canvas"></canvas>
+
+<div id="info"></div>
+
+<div id="saveOverlay">
+
+<div class="topButtons">
+
+<button id="backBtn">
+
+返回编辑
+
+</button>
+
+<button id="iosSaveBtn">
+
+保存到相册
+
+</button>
+
+</div>
 
 <img id="previewImage">
+
+<div class="tip">
+
+iPad请点击“保存到相册”
+<br>
+若系统未弹窗，请长按图片保存
 
 </div>
 
@@ -435,743 +318,515 @@ id="previewModal"
 
 <script>
 
-/* =========================
-ELEMENTS
-========================= */
-
-const upload =
-document.getElementById(
-"upload"
-);
-
 const canvas =
-document.getElementById(
-"canvas"
-);
+document.getElementById("canvas");
 
 const ctx =
-canvas.getContext(
-"2d"
-);
+canvas.getContext("2d");
 
-const pixelSlider =
-document.getElementById(
-"pixelSize"
-);
+const upload =
+document.getElementById("upload");
 
-const sizeText =
-document.getElementById(
-"sizeText"
-);
+const pixelWidth =
+document.getElementById("pixelWidth");
 
-const cellSlider =
-document.getElementById(
-"cellSize"
-);
+const cellSize =
+document.getElementById("cellSize");
+
+const widthText =
+document.getElementById("widthText");
 
 const cellText =
-document.getElementById(
-"cellText"
-);
+document.getElementById("cellText");
 
 const info =
-document.getElementById(
-"info"
-);
-
-const modal =
-document.getElementById(
-"previewModal"
-);
+document.getElementById("info");
 
 const previewImage =
-document.getElementById(
-"previewImage"
-);
+document.getElementById("previewImage");
+
+const saveOverlay =
+document.getElementById("saveOverlay");
+
+const backBtn =
+document.getElementById("backBtn");
 
 let img = null;
 
-let lastUsedColors = [];
+let finalBlob = null;
 
-let lastW = 0;
-
-let lastH = 0;
-
-
-/* =========================
-UI
-========================= */
-
-pixelSlider.oninput=()=>{
-
-sizeText.innerText =
-pixelSlider.value;
-};
-
-cellSlider.oninput=()=>{
+widthText.innerText =
+pixelWidth.value;
 
 cellText.innerText =
-cellSlider.value;
+cellSize.value;
+
+pixelWidth.oninput=()=>{
+
+    widthText.innerText =
+    pixelWidth.value;
 };
 
+cellSize.oninput=()=>{
 
-/* =========================
-LOAD IMAGE
-========================= */
+    cellText.innerText =
+    cellSize.value;
+};
 
 upload.onchange=e=>{
 
-const file =
-e.target.files[0];
+    const file =
+    e.target.files[0];
 
-if(!file) return;
+    if(!file) return;
 
-const reader =
-new FileReader();
+    const reader =
+    new FileReader();
 
-reader.onload=()=>{
+    reader.onload=()=>{
 
-img = new Image();
+        img = new Image();
 
-img.onload=()=>{
+        img.onload=()=>{
 
-canvas.width =
-img.width;
+            drawPreview();
+        };
 
-canvas.height =
-img.height;
+        img.src =
+        reader.result;
+    };
 
-ctx.drawImage(
-img,
-0,
-0
-);
+    reader.readAsDataURL(file);
 };
 
-img.src =
-reader.result;
-};
+function drawPreview(){
 
-reader.readAsDataURL(file);
-};
+    canvas.width =
+    img.width;
 
+    canvas.height =
+    img.height;
 
-/* =========================
-UTIL
-========================= */
+    ctx.drawImage(
+        img,
+        0,
+        0
+    );
+}
 
 function hexToRgb(hex){
 
-hex =
-hex.replace("#","");
+    hex =
+    hex.replace("#","");
 
-return [
+    return [
 
-parseInt(
-hex.substring(0,2),
-16
-),
+        parseInt(hex.substring(0,2),16),
 
-parseInt(
-hex.substring(2,4),
-16
-),
+        parseInt(hex.substring(2,4),16),
 
-parseInt(
-hex.substring(4,6),
-16
-)
-];
+        parseInt(hex.substring(4,6),16)
+    ];
 }
 
-function colorDistance(a,b){
+function distance(a,b){
 
-return Math.sqrt(
+    return Math.sqrt(
 
-(a[0]-b[0])**2+
-
-(a[1]-b[1])**2+
-
-(a[2]-b[2])**2
-);
+        (a[0]-b[0])**2+
+        (a[1]-b[1])**2+
+        (a[2]-b[2])**2
+    );
 }
 
-function nearestColor(rgb){
+function nearest(rgb){
 
-let best = null;
+    let best = null;
 
-let bestDist =
-Infinity;
+    let bestDist =
+    Infinity;
 
-for(const p of palette){
+    for(const p of palette){
 
-const prgb =
-hexToRgb(
-p.hex
-);
+        const prgb =
+        hexToRgb(p.hex);
 
-const dist =
-colorDistance(
-rgb,
-prgb
-);
+        const d =
+        distance(rgb,prgb);
 
-if(dist < bestDist){
+        if(d<bestDist){
 
-bestDist =
-dist;
+            bestDist=d;
+            best=p;
+        }
+    }
 
-best = p;
+    return best;
 }
-}
-
-return best;
-}
-
-
-/* =========================
-CONVERT
-========================= */
 
 document
-.getElementById(
-"convertBtn"
-)
+.getElementById("convertBtn")
 .onclick=()=>{
 
-if(!img){
+    if(!img) return;
 
-alert("请先上传图片");
+    const w =
+    parseInt(pixelWidth.value);
 
-return;
-}
+    const ratio =
+    img.height/img.width;
 
-const grid =
-parseInt(
-pixelSlider.value
-);
+    const h =
+    Math.round(w*ratio);
 
-const ratio =
-img.height /
-img.width;
+    const temp =
+    document.createElement("canvas");
 
-const w =
-grid;
+    temp.width=w;
+    temp.height=h;
 
-const h =
-Math.round(
-grid*ratio
-);
+    const tctx =
+    temp.getContext("2d");
 
-lastW = w;
-lastH = h;
+    tctx.drawImage(
+        img,
+        0,
+        0,
+        w,
+        h
+    );
 
-const temp =
-document.createElement(
-"canvas"
-);
+    const data =
+    tctx.getImageData(
+        0,
+        0,
+        w,
+        h
+    ).data;
 
-temp.width = w;
+    canvas.width=w;
+    canvas.height=h;
 
-temp.height = h;
+    const imageData =
+    ctx.createImageData(w,h);
 
-const tctx =
-temp.getContext(
-"2d"
-);
+    const used =
+    new Set();
 
-tctx.drawImage(
+    const pixelMap=[];
 
-img,
+    for(let y=0;y<h;y++){
 
-0,
-0,
+        pixelMap[y]=[];
 
-w,
-h
-);
+        for(let x=0;x<w;x++){
 
-const data =
-tctx.getImageData(
+            const i =
+            (y*w+x)*4;
 
-0,
-0,
+            const rgb=[
 
-w,
-h
+                data[i],
+                data[i+1],
+                data[i+2]
+            ];
 
-).data;
+            const best =
+            nearest(rgb);
 
-const cell =
-parseInt(
-cellSlider.value
-);
+            pixelMap[y][x]=best;
 
-canvas.width =
-w*cell;
+            used.add(best.code);
 
-canvas.height =
-h*cell;
+            const prgb =
+            hexToRgb(best.hex);
 
-ctx.clearRect(
+            imageData.data[i]=prgb[0];
+            imageData.data[i+1]=prgb[1];
+            imageData.data[i+2]=prgb[2];
+            imageData.data[i+3]=255;
+        }
+    }
 
-0,
-0,
+    ctx.putImageData(
+        imageData,
+        0,
+        0
+    );
 
-canvas.width,
-canvas.height
-);
+    info.innerText=
 
-ctx.imageSmoothingEnabled =
-false;
-
-ctx.textAlign =
-"center";
-
-ctx.textBaseline =
-"middle";
-
-ctx.font =
-
-`bold ${
-Math.floor(
-Math.max(
-8,
-cell*0.32
-))
-}px sans-serif`;
-
-const used =
-new Set();
-
-for(let y=0;y<h;y++){
-
-for(let x=0;x<w;x++){
-
-const i =
-(y*w+x)*4;
-
-const pixelRgb = [
-
-data[i],
-data[i+1],
-data[i+2]
-];
-
-const best =
-nearestColor(
-pixelRgb
-);
-
-used.add(
-best.code
-);
-
-const rgb2 =
-hexToRgb(
-best.hex
-);
-
-const brightness =
-
-(
-rgb2[0]*0.299 +
-rgb2[1]*0.587 +
-rgb2[2]*0.114
-);
-
-ctx.fillStyle =
-best.hex;
-
-ctx.fillRect(
-
-x*cell,
-y*cell,
-
-cell,
-cell
-);
-
-if(
-
-document
-.getElementById(
-"showGrid"
-)
-.checked
-){
-
-ctx.lineWidth =
-
-Math.max(
-1,
-cell*0.08
-);
-
-ctx.strokeStyle =
-
-brightness < 80
-? "#FFFFFF55"
-: "#00000055";
-
-ctx.strokeRect(
-
-x*cell,
-y*cell,
-
-cell,
-cell
-);
-}
-
-if(
-
-document
-.getElementById(
-"showCode"
-)
-.checked
-){
-
-const textX =
-x*cell+cell/2;
-
-const textY =
-y*cell+cell/2;
-
-const textColor =
-
-brightness < 140
-? "#FFFFFF"
-: "#000000";
-
-ctx.lineWidth =
-
-Math.max(
-1,
-cell*0.12
-);
-
-ctx.strokeStyle =
-
-brightness < 140
-? "#000000"
-: "#FFFFFF";
-
-ctx.strokeText(
-
-best.code,
-
-textX,
-textY
-);
-
-ctx.fillStyle =
-textColor;
-
-ctx.fillText(
-
-best.code,
-
-textX,
-textY
-);
-}
-}
-}
-
-lastUsedColors =
-[...used].sort();
-
-info.innerText =
-
-`尺寸:
+`尺寸：
 ${w} x ${h}
 
-总像素:
+总像素：
 ${w*h}
 
-使用色号:
-${lastUsedColors.join(", ")}`;
-};
+使用色号：
+${[...used].join(", ")}`;
 
+    window.pixelMap=
+    pixelMap;
 
-/* =========================
-SAVE
-========================= */
-
-document
-.getElementById(
-"saveBtn"
-)
-.onclick=()=>{
-
-if(!img){
-
-alert("请先生成拼豆图");
-
-return;
-}
-
-const scale = 4;
-
-const padding = 40;
-
-const infoHeight = 260;
-
-const exportCanvas =
-document.createElement(
-"canvas"
-);
-
-exportCanvas.width =
-
-canvas.width*scale;
-
-exportCanvas.height =
-
-canvas.height*scale
-+ infoHeight;
-
-const exctx =
-exportCanvas.getContext(
-"2d"
-);
-
-exctx.imageSmoothingEnabled =
-false;
-
-exctx.fillStyle =
-"#FFFFFF";
-
-exctx.fillRect(
-
-0,
-0,
-
-exportCanvas.width,
-exportCanvas.height
-);
-
-exctx.drawImage(
-
-canvas,
-
-0,
-0,
-
-canvas.width,
-canvas.height,
-
-0,
-0,
-
-canvas.width*scale,
-canvas.height*scale
-);
-
-exctx.fillStyle =
-"#111";
-
-exctx.fillRect(
-
-0,
-
-canvas.height*scale,
-
-exportCanvas.width,
-
-infoHeight
-);
-
-exctx.fillStyle =
-"#FFF";
-
-exctx.textAlign =
-"left";
-
-exctx.textBaseline =
-"top";
-
-exctx.font =
-"bold 32px sans-serif";
-
-let y =
-
-canvas.height*scale
-+ padding;
-
-exctx.fillText(
-
-`尺寸: ${lastW} x ${lastH}`,
-
-padding,
-y
-);
-
-y += 50;
-
-exctx.fillText(
-
-`总像素: ${lastW*lastH}`,
-
-padding,
-y
-);
-
-y += 60;
-
-exctx.fillText(
-
-`使用色号:`,
-
-padding,
-y
-);
-
-y += 45;
-
-exctx.font =
-"28px sans-serif";
-
-let line = "";
-
-const maxWidth =
-
-exportCanvas.width
-- padding*2;
-
-for(let i=0;i<lastUsedColors.length;i++){
-
-const testLine =
-
-line +
-lastUsedColors[i] +
-"  ";
-
-const metrics =
-exctx.measureText(
-testLine
-);
-
-if(
-metrics.width >
-maxWidth
-){
-
-exctx.fillText(
-
-line,
-
-padding,
-y
-);
-
-line =
-lastUsedColors[i]
-+ "  ";
-
-y += 38;
-
-}else{
-
-line =
-testLine;
-}
-}
-
-exctx.fillText(
-
-line,
-
-padding,
-y
-);
-
-const url =
-exportCanvas.toDataURL(
-"image/png"
-);
-
-previewImage.src =
-url;
-
-modal.style.display =
-"flex";
-};
-
-
-/* =========================
-MODAL
-========================= */
-
-document
-.getElementById(
-"closePreview"
-)
-.onclick=()=>{
-
-modal.style.display =
-"none";
+    window.gridWidth=w;
+    window.gridHeight=h;
 };
 
 document
-.getElementById(
-"savePhoto"
-)
+.getElementById("saveBtn")
 .onclick=async()=>{
 
-    try{
+    if(!window.pixelMap) return;
 
-        const response =
-        await fetch(
-            previewImage.src
-        );
+    const cell =
+    parseInt(cellSize.value);
 
-        const blob =
-        await response.blob();
+    const w =
+    window.gridWidth;
 
-        const file =
-        new File(
+    const h =
+    window.gridHeight;
 
-            [blob],
+    const exportCanvas =
+    document.createElement("canvas");
 
-            "mard221_pixel.png",
+    const extraHeight=260;
 
-            {
-                type:"image/png"
+    exportCanvas.width =
+    w*cell;
+
+    exportCanvas.height =
+    h*cell+extraHeight;
+
+    const ectx =
+    exportCanvas.getContext("2d");
+
+    ectx.fillStyle="#111";
+    ectx.fillRect(
+        0,
+        0,
+        exportCanvas.width,
+        exportCanvas.height
+    );
+
+    ectx.font=
+    `bold ${Math.max(10,cell*0.28)}px sans-serif`;
+
+    ectx.textAlign="center";
+    ectx.textBaseline="middle";
+
+    for(let y=0;y<h;y++){
+
+        for(let x=0;x<w;x++){
+
+            const p =
+            window.pixelMap[y][x];
+
+            ectx.fillStyle=p.hex;
+
+            ectx.fillRect(
+
+                x*cell,
+                y*cell,
+
+                cell,
+                cell
+            );
+
+            if(
+                document
+                .getElementById("showGrid")
+                .checked
+            ){
+
+                ectx.strokeStyle=
+                "#000";
+
+                ectx.strokeRect(
+
+                    x*cell,
+                    y*cell,
+
+                    cell,
+                    cell
+                );
             }
-        );
 
-        if(
-            navigator.canShare &&
-            navigator.canShare({
-                files:[file]
-            })
-        ){
+            if(
+                document
+                .getElementById("showCode")
+                .checked
+            ){
+
+                const rgb =
+                hexToRgb(p.hex);
+
+                const brightness =
+
+                    rgb[0]*0.299+
+                    rgb[1]*0.587+
+                    rgb[2]*0.114;
+
+                const tx=
+                x*cell+cell/2;
+
+                const ty=
+                y*cell+cell/2;
+
+                ectx.lineWidth=2;
+
+                ectx.strokeStyle=
+                brightness<140
+                ? "#000"
+                : "#FFF";
+
+                ectx.fillStyle=
+                brightness<140
+                ? "#FFF"
+                : "#000";
+
+                ectx.strokeText(
+                    p.code,
+                    tx,
+                    ty
+                );
+
+                ectx.fillText(
+                    p.code,
+                    tx,
+                    ty
+                );
+            }
+        }
+    }
+
+    ectx.fillStyle="#FFF";
+
+    ectx.font="28px sans-serif";
+
+    ectx.textAlign="left";
+
+    const used =
+    [...new Set(
+        window.pixelMap
+        .flat()
+        .map(v=>v.code)
+    )];
+
+    const startY =
+    h*cell+50;
+
+    ectx.fillText(
+        `尺寸：${w} x ${h}`,
+        30,
+        startY
+    );
+
+    ectx.fillText(
+        `总像素：${w*h}`,
+        30,
+        startY+45
+    );
+
+    ectx.fillText(
+        `使用色号：`,
+        30,
+        startY+90
+    );
+
+    let yy=
+    startY+135;
+
+    let line="";
+
+    for(let i=0;i<used.length;i++){
+
+        line+=used[i]+" ";
+
+        if(line.length>60){
+
+            ectx.fillText(
+                line,
+                30,
+                yy
+            );
+
+            yy+=38;
+
+            line="";
+        }
+    }
+
+    if(line){
+
+        ectx.fillText(
+            line,
+            30,
+            yy
+        );
+    }
+
+    exportCanvas.toBlob(async(blob)=>{
+
+        finalBlob=blob;
+
+        const url =
+        URL.createObjectURL(blob);
+
+        previewImage.src=url;
+
+        saveOverlay.style.display=
+        "block";
+
+        backBtn.style.display=
+        "block";
+
+    },"image/png");
+};
+
+backBtn.onclick=()=>{
+
+    saveOverlay.style.display=
+    "none";
+};
+
+document
+.getElementById("iosSaveBtn")
+.onclick=async()=>{
+
+    if(!finalBlob) return;
+
+    const file =
+    new File(
+
+        [finalBlob],
+
+        "mard221.png",
+
+        {
+            type:"image/png"
+        }
+    );
+
+    if(
+
+        navigator.canShare &&
+        navigator.canShare({
+            files:[file]
+        })
+
+    ){
+
+        try{
 
             await navigator.share({
 
                 files:[file],
 
-                title:
-                "MARD221 Pixel"
+                title:"MARD221"
             });
 
-        }else{
-
-            alert(
-                "当前浏览器不支持保存到相册"
-            );
-        }
-
-    }catch(e){
-
-        console.log(e);
-
-        alert(
-            "保存失败"
-        );
+        }catch(e){}
     }
 };
 
