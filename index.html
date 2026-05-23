@@ -173,25 +173,6 @@ canvas{
     }
 }
 
-.info{
-
-    margin-top:20px;
-
-    background:#1b1b1b;
-
-    border-radius:20px;
-
-    padding:20px;
-
-    line-height:1.7;
-
-    font-size:22px;
-
-    white-space:pre-wrap;
-
-    word-break:break-word;
-}
-
 </style>
 </head>
 
@@ -323,11 +304,6 @@ margin-bottom:20px;
 
 <img id="previewImg">
 
-<div
-class="info"
-id="info"
-></div>
-
 </div>
 
 <div id="loading">
@@ -365,9 +341,6 @@ document.getElementById("cellValue");
 
 const previewImg =
 document.getElementById("previewImg");
-
-const info =
-document.getElementById("info");
 
 const loading =
 document.getElementById("loading");
@@ -861,17 +834,6 @@ document
     previewImg.src =
     finalImageURL;
 
-    info.innerText =
-
-`尺寸：
-${w} x ${h}
-
-总像素：
-${w*h}
-
-使用色号：
-${[...used].join(" ")}`;
-
     editor.style.display =
     "none";
 
@@ -893,20 +855,51 @@ document
 
     if(!finalImageURL) return;
 
-    const a =
-    document.createElement("a");
+    const newTab =
+    window.open();
 
-    a.href =
-    finalImageURL;
+    newTab.document.write(
 
-    a.download =
-    "mard221_pixel.png";
+        `
+        <html>
+        <head>
+        <title>保存图片</title>
 
-    document.body.appendChild(a);
+        <style>
 
-    a.click();
+        body{
 
-    document.body.removeChild(a);
+            margin:0;
+
+            background:black;
+
+            display:flex;
+
+            justify-content:center;
+
+            align-items:center;
+
+            min-height:100vh;
+        }
+
+        img{
+
+            max-width:100%;
+            max-height:100vh;
+        }
+
+        </style>
+
+        </head>
+
+        <body>
+
+        <img src="${finalImageURL}">
+
+        </body>
+        </html>
+        `
+    );
 };
 
 
