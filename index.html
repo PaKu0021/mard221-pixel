@@ -2,10 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<meta
-name="viewport"
-content="width=device-width,initial-scale=1.0,viewport-fit=cover"
->
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 
 <title>MARD221 Pixel Generator</title>
 
@@ -19,42 +16,43 @@ content="width=device-width,initial-scale=1.0,viewport-fit=cover"
 body{
 
     margin:0;
+    padding:20px;
+
     background:#111;
     color:white;
+
     font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-
-    padding:
-    env(safe-area-inset-top)
-    14px
-    env(safe-area-inset-bottom);
-
-    overflow-x:hidden;
 }
 
 h1{
 
-    margin:0 0 16px;
-    font-size:32px;
-    font-weight:700;
+    margin:0 0 20px 0;
+    font-size:42px;
 }
 
 .panel{
 
-    background:#1b1b1d;
-    border-radius:18px;
-    padding:16px;
-    margin-bottom:14px;
+    background:#1b1b1b;
+
+    border-radius:24px;
+
+    padding:24px;
+
+    margin-bottom:20px;
 }
 
 .row{
 
-    margin-bottom:18px;
+    margin-bottom:22px;
 }
 
-.label{
+label{
 
-    margin-bottom:8px;
-    font-size:18px;
+    display:block;
+
+    margin-bottom:10px;
+
+    font-size:24px;
 }
 
 input[type="range"]{
@@ -62,121 +60,136 @@ input[type="range"]{
     width:100%;
 }
 
+.value{
+
+    font-size:22px;
+    opacity:.8;
+}
+
 button{
 
     width:100%;
+
     border:none;
-    border-radius:16px;
-    padding:18px;
-    font-size:20px;
-    font-weight:700;
+
+    border-radius:18px;
+
+    padding:24px;
+
+    margin-top:16px;
+
     color:white;
-    margin-top:10px;
+
+    font-size:28px;
+
+    font-weight:bold;
 }
 
-#convertBtn{
+#generateBtn{
 
-    background:#4d8dff;
+    background:#4f8cff;
 }
 
 #saveBtn{
 
-    background:#1fb45b;
+    background:#22aa55;
 }
 
 #backBtn{
 
-    background:#444;
-    display:none;
+    background:#333;
 }
 
 canvas{
 
     display:block;
 
-    margin:20px auto;
+    margin:auto;
+
+    background:#000;
 
     image-rendering:pixelated;
 
-    width:95vw;
-    height:auto;
-
-    background:#222;
-
-    border-radius:12px;
+    max-width:100%;
 }
 
-.check{
+#viewer{
 
-    display:flex;
-    align-items:center;
-    gap:10px;
-
-    margin-top:12px;
-
-    font-size:18px;
+    display:none;
 }
 
-#info{
+#previewImg{
 
-    margin-top:20px;
+    width:100%;
 
-    background:#1b1b1d;
-
-    border-radius:18px;
-
-    padding:18px;
-
-    line-height:1.8;
-
-    font-size:16px;
-
-    white-space:pre-wrap;
+    border-radius:20px;
 }
 
-#saveOverlay{
-
-    position:fixed;
-    inset:0;
-
-    background:rgba(0,0,0,.88);
+#loading{
 
     display:none;
 
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.85);
+
     z-index:999;
 
-    overflow:auto;
+    align-items:center;
+
+    justify-content:center;
+
+    flex-direction:column;
+
+    font-size:32px;
+}
+
+.spinner{
+
+    width:80px;
+    height:80px;
+
+    border:8px solid #333;
+
+    border-top:8px solid white;
+
+    border-radius:50%;
+
+    animation:spin 1s linear infinite;
+
+    margin-bottom:30px;
+}
+
+@keyframes spin{
+
+    from{
+        transform:rotate(0deg);
+    }
+
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+.info{
+
+    margin-top:20px;
+
+    background:#1b1b1b;
+
+    border-radius:20px;
 
     padding:20px;
-}
 
-#saveOverlay img{
+    line-height:1.7;
 
-    width:100%;
-    height:auto;
+    font-size:22px;
 
-    border-radius:12px;
-}
+    white-space:pre-wrap;
 
-.topButtons{
-
-    display:flex;
-    gap:12px;
-
-    margin-bottom:20px;
-}
-
-.topButtons button{
-
-    margin:0;
-}
-
-.tip{
-
-    text-align:center;
-    opacity:.7;
-
-    margin-top:12px;
+    word-break:break-word;
 }
 
 </style>
@@ -184,17 +197,15 @@ canvas{
 
 <body>
 
+<div id="editor">
+
 <h1>MARD221 Pixel Generator</h1>
 
 <div class="panel">
 
 <div class="row">
 
-<div class="label">
-
-上传图片
-
-</div>
+<label>上传图片</label>
 
 <input
 type="file"
@@ -206,12 +217,18 @@ accept="image/*"
 
 <div class="row">
 
-<div class="label">
+<label>
 
-像素宽度：
-<span id="widthText">64</span>
+像素宽度
 
-</div>
+<span
+class="value"
+id="widthValue"
+>
+64
+</span>
+
+</label>
 
 <input
 type="range"
@@ -225,24 +242,32 @@ value="64"
 
 <div class="row">
 
-<div class="label">
+<label>
 
-像素格尺寸：
-<span id="cellText">24</span>
+像素格尺寸
 
-</div>
+<span
+class="value"
+id="cellValue"
+>
+24
+</span>
+
+</label>
 
 <input
 type="range"
 id="cellSize"
-min="12"
-max="40"
+min="16"
+max="48"
 value="24"
 >
 
 </div>
 
-<label class="check">
+<div class="row">
+
+<label>
 
 <input
 type="checkbox"
@@ -254,7 +279,7 @@ checked
 
 </label>
 
-<label class="check">
+<label>
 
 <input
 type="checkbox"
@@ -266,51 +291,50 @@ checked
 
 </label>
 
-<button id="convertBtn">
+</div>
 
+<button id="generateBtn">
 生成拼豆图
-
-</button>
-
-<button id="saveBtn">
-
-保存到相册
-
 </button>
 
 </div>
 
 <canvas id="canvas"></canvas>
 
-<div id="info"></div>
+</div>
 
-<div id="saveOverlay">
+<div id="viewer">
 
-<div class="topButtons">
+<div style="
+display:flex;
+gap:16px;
+margin-bottom:20px;
+">
 
 <button id="backBtn">
-
 返回编辑
-
 </button>
 
-<button id="iosSaveBtn">
-
+<button id="saveBtn">
 保存到相册
-
 </button>
 
 </div>
 
-<img id="previewImage">
+<img id="previewImg">
 
-<div class="tip">
-
-iPad请点击“保存到相册”
-<br>
-若系统未弹窗，请长按图片保存
+<div
+class="info"
+id="info"
+></div>
 
 </div>
+
+<div id="loading">
+
+<div class="spinner"></div>
+
+<div>正在生成图片...</div>
 
 </div>
 
@@ -318,14 +342,14 @@ iPad请点击“保存到相册”
 
 <script>
 
+const upload =
+document.getElementById("upload");
+
 const canvas =
 document.getElementById("canvas");
 
 const ctx =
 canvas.getContext("2d");
-
-const upload =
-document.getElementById("upload");
 
 const pixelWidth =
 document.getElementById("pixelWidth");
@@ -333,45 +357,52 @@ document.getElementById("pixelWidth");
 const cellSize =
 document.getElementById("cellSize");
 
-const widthText =
-document.getElementById("widthText");
+const widthValue =
+document.getElementById("widthValue");
 
-const cellText =
-document.getElementById("cellText");
+const cellValue =
+document.getElementById("cellValue");
+
+const previewImg =
+document.getElementById("previewImg");
 
 const info =
 document.getElementById("info");
 
-const previewImage =
-document.getElementById("previewImage");
+const loading =
+document.getElementById("loading");
 
-const saveOverlay =
-document.getElementById("saveOverlay");
+const editor =
+document.getElementById("editor");
 
-const backBtn =
-document.getElementById("backBtn");
+const viewer =
+document.getElementById("viewer");
 
 let img = null;
 
-let finalBlob = null;
+let finalImageURL = null;
 
-widthText.innerText =
-pixelWidth.value;
 
-cellText.innerText =
-cellSize.value;
+/* =========================
+   UI
+========================= */
 
 pixelWidth.oninput=()=>{
 
-    widthText.innerText =
+    widthValue.innerText =
     pixelWidth.value;
 };
 
 cellSize.oninput=()=>{
 
-    cellText.innerText =
+    cellValue.innerText =
     cellSize.value;
 };
+
+
+/* =========================
+   LOAD IMAGE
+========================= */
 
 upload.onchange=e=>{
 
@@ -389,7 +420,17 @@ upload.onchange=e=>{
 
         img.onload=()=>{
 
-            drawPreview();
+            canvas.width =
+            img.width;
+
+            canvas.height =
+            img.height;
+
+            ctx.drawImage(
+                img,
+                0,
+                0
+            );
         };
 
         img.src =
@@ -399,20 +440,10 @@ upload.onchange=e=>{
     reader.readAsDataURL(file);
 };
 
-function drawPreview(){
 
-    canvas.width =
-    img.width;
-
-    canvas.height =
-    img.height;
-
-    ctx.drawImage(
-        img,
-        0,
-        0
-    );
-}
+/* =========================
+   HEX → RGB
+========================= */
 
 function hexToRgb(hex){
 
@@ -421,69 +452,251 @@ function hexToRgb(hex){
 
     return [
 
-        parseInt(hex.substring(0,2),16),
+        parseInt(
+            hex.substring(0,2),
+            16
+        ),
 
-        parseInt(hex.substring(2,4),16),
+        parseInt(
+            hex.substring(2,4),
+            16
+        ),
 
-        parseInt(hex.substring(4,6),16)
+        parseInt(
+            hex.substring(4,6),
+            16
+        )
     ];
 }
 
-function distance(a,b){
+
+/* =========================
+   COLOR DISTANCE
+========================= */
+
+function colorDistance(a,b){
 
     return Math.sqrt(
 
         (a[0]-b[0])**2+
+
         (a[1]-b[1])**2+
+
         (a[2]-b[2])**2
     );
 }
 
-function nearest(rgb){
+
+/* =========================
+   FIND NEAREST
+========================= */
+
+function nearestColor(rgb){
 
     let best = null;
 
-    let bestDist =
-    Infinity;
+    let bestDist = Infinity;
 
     for(const p of palette){
 
         const prgb =
         hexToRgb(p.hex);
 
-        const d =
-        distance(rgb,prgb);
+        const dist =
+        colorDistance(
+            rgb,
+            prgb
+        );
 
-        if(d<bestDist){
+        if(dist<bestDist){
 
-            bestDist=d;
-            best=p;
+            bestDist = dist;
+
+            best = p;
         }
     }
 
     return best;
 }
 
-document
-.getElementById("convertBtn")
-.onclick=()=>{
 
-    if(!img) return;
+/* =========================
+   DRAW INFO PANEL
+========================= */
 
-    const w =
-    parseInt(pixelWidth.value);
+function drawInfoPanel(
+    finalCanvas,
+    usedList,
+    w,
+    h
+){
 
-    const ratio =
-    img.height/img.width;
+    const ctx =
+    finalCanvas.getContext("2d");
 
-    const h =
-    Math.round(w*ratio);
+    const padding = 30;
+
+    const infoFont = 28;
+
+    const lineHeight = 42;
+
+    ctx.font =
+    `${infoFont}px sans-serif`;
+
+    const codes =
+    usedList.join(" ");
+
+    const maxWidth =
+    finalCanvas.width - padding*2;
+
+    const words =
+    codes.split(" ");
+
+    const lines = [];
+
+    let current = "";
+
+    for(const word of words){
+
+        const test =
+        current + word + " ";
+
+        const width =
+        ctx.measureText(test).width;
+
+        if(width > maxWidth){
+
+            lines.push(current);
+
+            current =
+            word + " ";
+
+        }else{
+
+            current = test;
+        }
+    }
+
+    lines.push(current);
+
+    const infoHeight =
+
+        220 +
+        lines.length * lineHeight;
 
     const temp =
     document.createElement("canvas");
 
-    temp.width=w;
-    temp.height=h;
+    temp.width =
+    finalCanvas.width;
+
+    temp.height =
+    finalCanvas.height +
+    infoHeight;
+
+    const tctx =
+    temp.getContext("2d");
+
+    tctx.fillStyle =
+    "#000";
+
+    tctx.fillRect(
+        0,
+        0,
+        temp.width,
+        temp.height
+    );
+
+    tctx.drawImage(
+        finalCanvas,
+        0,
+        0
+    );
+
+    tctx.fillStyle =
+    "#FFF";
+
+    tctx.font =
+    `${infoFont}px sans-serif`;
+
+    let y =
+    finalCanvas.height + 50;
+
+    tctx.fillText(
+        `尺寸：${w} x ${h}`,
+        padding,
+        y
+    );
+
+    y += lineHeight;
+
+    tctx.fillText(
+        `总像素：${w*h}`,
+        padding,
+        y
+    );
+
+    y += lineHeight * 1.5;
+
+    tctx.fillText(
+        `使用色号：`,
+        padding,
+        y
+    );
+
+    y += lineHeight;
+
+    for(const line of lines){
+
+        tctx.fillText(
+            line,
+            padding,
+            y
+        );
+
+        y += lineHeight;
+    }
+
+    return temp;
+}
+
+
+/* =========================
+   GENERATE
+========================= */
+
+document
+.getElementById("generateBtn")
+.onclick=async()=>{
+
+    if(!img) return;
+
+    loading.style.display =
+    "flex";
+
+    await new Promise(r=>setTimeout(r,50));
+
+    const grid =
+    parseInt(pixelWidth.value);
+
+    const cell =
+    parseInt(cellSize.value);
+
+    const ratio =
+    img.height/img.width;
+
+    const w = grid;
+
+    const h =
+    Math.round(
+        grid*ratio
+    );
+
+    const temp =
+    document.createElement("canvas");
+
+    temp.width = w;
+    temp.height = h;
 
     const tctx =
     temp.getContext("2d");
@@ -504,27 +717,39 @@ document
         h
     ).data;
 
-    canvas.width=w;
-    canvas.height=h;
+    canvas.width =
+    w*cell;
 
-    const imageData =
-    ctx.createImageData(w,h);
+    canvas.height =
+    h*cell;
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.font =
+    `bold ${cell*0.32}px sans-serif`;
+
+    ctx.textAlign =
+    "center";
+
+    ctx.textBaseline =
+    "middle";
 
     const used =
     new Set();
 
-    const pixelMap=[];
-
     for(let y=0;y<h;y++){
-
-        pixelMap[y]=[];
 
         for(let x=0;x<w;x++){
 
             const i =
             (y*w+x)*4;
 
-            const rgb=[
+            const rgb = [
 
                 data[i],
                 data[i+1],
@@ -532,103 +757,18 @@ document
             ];
 
             const best =
-            nearest(rgb);
+            nearestColor(rgb);
 
-            pixelMap[y][x]=best;
+            used.add(
+                best.code
+            );
 
-            used.add(best.code);
+            ctx.fillStyle =
+            best.hex;
 
-            const prgb =
-            hexToRgb(best.hex);
-
-            imageData.data[i]=prgb[0];
-            imageData.data[i+1]=prgb[1];
-            imageData.data[i+2]=prgb[2];
-            imageData.data[i+3]=255;
-        }
-    }
-
-    ctx.putImageData(
-        imageData,
-        0,
-        0
-    );
-
-    info.innerText=
-
-`尺寸：
-${w} x ${h}
-
-总像素：
-${w*h}
-
-使用色号：
-${[...used].join(", ")}`;
-
-    window.pixelMap=
-    pixelMap;
-
-    window.gridWidth=w;
-    window.gridHeight=h;
-};
-
-document
-.getElementById("saveBtn")
-.onclick=async()=>{
-
-    if(!window.pixelMap) return;
-
-    const cell =
-    parseInt(cellSize.value);
-
-    const w =
-    window.gridWidth;
-
-    const h =
-    window.gridHeight;
-
-    const exportCanvas =
-    document.createElement("canvas");
-
-    const extraHeight=260;
-
-    exportCanvas.width =
-    w*cell;
-
-    exportCanvas.height =
-    h*cell+extraHeight;
-
-    const ectx =
-    exportCanvas.getContext("2d");
-
-    ectx.fillStyle="#111";
-    ectx.fillRect(
-        0,
-        0,
-        exportCanvas.width,
-        exportCanvas.height
-    );
-
-    ectx.font=
-    `bold ${Math.max(10,cell*0.28)}px sans-serif`;
-
-    ectx.textAlign="center";
-    ectx.textBaseline="middle";
-
-    for(let y=0;y<h;y++){
-
-        for(let x=0;x<w;x++){
-
-            const p =
-            window.pixelMap[y][x];
-
-            ectx.fillStyle=p.hex;
-
-            ectx.fillRect(
-
+            ctx.fillRect(
                 x*cell,
                 y*cell,
-
                 cell,
                 cell
             );
@@ -639,14 +779,12 @@ document
                 .checked
             ){
 
-                ectx.strokeStyle=
+                ctx.strokeStyle =
                 "#000";
 
-                ectx.strokeRect(
-
+                ctx.strokeRect(
                     x*cell,
                     y*cell,
-
                     cell,
                     cell
                 );
@@ -658,176 +796,133 @@ document
                 .checked
             ){
 
-                const rgb =
-                hexToRgb(p.hex);
+                const textX =
+                x*cell+cell/2;
+
+                const textY =
+                y*cell+cell/2;
+
+                const rgb2 =
+                hexToRgb(best.hex);
 
                 const brightness =
 
-                    rgb[0]*0.299+
-                    rgb[1]*0.587+
-                    rgb[2]*0.114;
+                (
+                    rgb2[0]*0.299 +
+                    rgb2[1]*0.587 +
+                    rgb2[2]*0.114
+                );
 
-                const tx=
-                x*cell+cell/2;
+                const textColor =
 
-                const ty=
-                y*cell+cell/2;
-
-                ectx.lineWidth=2;
-
-                ectx.strokeStyle=
-                brightness<140
-                ? "#000"
-                : "#FFF";
-
-                ectx.fillStyle=
-                brightness<140
+                brightness < 140
                 ? "#FFF"
                 : "#000";
 
-                ectx.strokeText(
-                    p.code,
-                    tx,
-                    ty
+                ctx.lineWidth = 2;
+
+                ctx.strokeStyle =
+
+                brightness < 140
+                ? "#000"
+                : "#FFF";
+
+                ctx.strokeText(
+                    best.code,
+                    textX,
+                    textY
                 );
 
-                ectx.fillText(
-                    p.code,
-                    tx,
-                    ty
+                ctx.fillStyle =
+                textColor;
+
+                ctx.fillText(
+                    best.code,
+                    textX,
+                    textY
                 );
             }
         }
     }
 
-    ectx.fillStyle="#FFF";
-
-    ectx.font="28px sans-serif";
-
-    ectx.textAlign="left";
-
-    const used =
-    [...new Set(
-        window.pixelMap
-        .flat()
-        .map(v=>v.code)
-    )];
-
-    const startY =
-    h*cell+50;
-
-    ectx.fillText(
-        `尺寸：${w} x ${h}`,
-        30,
-        startY
+    const exportCanvas =
+    drawInfoPanel(
+        canvas,
+        [...used],
+        w,
+        h
     );
 
-    ectx.fillText(
-        `总像素：${w*h}`,
-        30,
-        startY+45
+    finalImageURL =
+    exportCanvas.toDataURL(
+        "image/png"
     );
 
-    ectx.fillText(
-        `使用色号：`,
-        30,
-        startY+90
-    );
+    previewImg.src =
+    finalImageURL;
 
-    let yy=
-    startY+135;
+    info.innerText =
 
-    let line="";
+`尺寸：
+${w} x ${h}
 
-    for(let i=0;i<used.length;i++){
+总像素：
+${w*h}
 
-        line+=used[i]+" ";
+使用色号：
+${[...used].join(" ")}`;
 
-        if(line.length>60){
+    editor.style.display =
+    "none";
 
-            ectx.fillText(
-                line,
-                30,
-                yy
-            );
+    viewer.style.display =
+    "block";
 
-            yy+=38;
-
-            line="";
-        }
-    }
-
-    if(line){
-
-        ectx.fillText(
-            line,
-            30,
-            yy
-        );
-    }
-
-    exportCanvas.toBlob(async(blob)=>{
-
-        finalBlob=blob;
-
-        const url =
-        URL.createObjectURL(blob);
-
-        previewImage.src=url;
-
-        saveOverlay.style.display=
-        "block";
-
-        backBtn.style.display=
-        "block";
-
-    },"image/png");
-};
-
-backBtn.onclick=()=>{
-
-    saveOverlay.style.display=
+    loading.style.display =
     "none";
 };
 
+
+/* =========================
+   SAVE
+========================= */
+
 document
-.getElementById("iosSaveBtn")
-.onclick=async()=>{
+.getElementById("saveBtn")
+.onclick=()=>{
 
-    if(!finalBlob) return;
+    if(!finalImageURL) return;
 
-    const file =
-    new File(
+    const a =
+    document.createElement("a");
 
-        [finalBlob],
+    a.href =
+    finalImageURL;
 
-        "mard221.png",
+    a.download =
+    "mard221_pixel.png";
 
-        {
-            type:"image/png"
-        }
-    );
+    document.body.appendChild(a);
 
-    if(
+    a.click();
 
-        navigator.canShare &&
-        navigator.canShare({
-            files:[file]
-        })
+    document.body.removeChild(a);
+};
 
-    ){
 
-        try{
+/* =========================
+   BACK
+========================= */
 
-            await navigator.share({
+document
+.getElementById("backBtn")
+.onclick=()=>{
 
-                files:[file],
+    viewer.style.display =
+    "none";
 
-                title:"MARD221"
-            });
-
-        }catch(e){}
-    }
+    editor.style.display =
+    "block";
 };
 
 </script>
